@@ -84,7 +84,7 @@
     }
     
     if (_menuState != kBJRadialMenuStateClosed) {
-        NSLog(@"Menu isn't closed or closing...can't open");
+        NSLog(@"Menu isn't closed...can't open");
         return;
     }
     
@@ -95,25 +95,15 @@
     BJRadialMenuType menuType = [self menuTypeFromCurrentAngles];
     NSUInteger numSubMenus = [_subMenus count];
     
-    [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
-
-        NSUInteger idx = zeroIdx + 1;
-        NSUInteger max = numSubMenus;
-        if (menuType == kBJRadialMenuTypeSemiCircle) {
-            max--;
-        }
-        
-        CGPoint relPos = [BJRadialUtilities getPointAlongCircleForItem:zeroIdx
-                                                                 outOf:max
-                                                               between:_minAngle
-                                                                   and:_maxAngle
-                                                            withRadius:_radius];
-        CGPoint absPos = CGPointMake(aPosition.x + relPos.x, aPosition.y + relPos.y);
-        CGFloat delay = _openDelayStep * idx;
-        
-        [self openBJRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
+    [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
+        CGPoint absPos = [self getAbsolutePositionForSubMenuWithIndex:idx
+                                                                outOf:numSubMenus
+                                                          andMenuType:menuType];
+        CGFloat delay = _openDelayStep * (idx + 1);
+        [self openRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
     }];
 }
+
 
 - (void)close
 {
@@ -131,21 +121,11 @@
         CGFloat delay = _closeDelayStep * oneIdx;
         
         if (subMenu.menuState == kBJRadialSubMenuStateHighlighted) {
-            [self selectBJRadialSubMenu:subMenu withDelay:delay];
+            [self selectRadialSubMenu:subMenu withDelay:delay];
         } else {
-            [self closeBJRadialSubMenu:subMenu withDelay:delay];
+            [self closeRadialSubMenu:subMenu withDelay:delay];
         }
     }];
-}
-
-- (BJRadialMenuType)menuTypeFromCurrentAngles
-{
-    float angleDiff = _maxAngle - _minAngle;
-    if (angleDiff == 360.0) {
-        return kBJRadialMenuTypeFullCircle;
-    }
-    
-    return kBJRadialMenuTypeSemiCircle;
 }
 
 - (void)moveAtPosition:(CGPoint)aPosition
@@ -161,7 +141,7 @@
         BJRadialSubMenu *subMenu = [_subMenus objectAtIndex:activeSubMenuIndex];
         
         if (![subMenu isHighlightedAtPosition:aPosition]) {
-            [self unhiglightBJRadialSubMenu:subMenu];
+            [self unhiglightRadialSubMenu:subMenu];
         }
         return;
     }
@@ -175,39 +155,68 @@
         if ([subMenu isHighlightedAtPosition:aPosition]) {
             
             if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) {
-                [self unhiglightBJRadialSubMenu:subMenu];
+                [self unhiglightRadialSubMenu:subMenu];
             }
             
-            [self higlightBJRadialSubMenu:subMenu];
+            [self higlightRadialSubMenu:subMenu];
         }
     }];
 }
 
+#pragma mark - SubMenu helpers
+
+- (BJRadialMenuType)menuTypeFromCurrentAngles
+{
+    float angleDiff = _maxAngle - _minAngle;
+    if (angleDiff == 360.0) {
+        return kBJRadialMenuTypeFullCircle;
+    }
+    
+    return kBJRadialMenuTypeSemiCircle;
+}
+
+- (CGPoint)getAbsolutePositionForSubMenuWithIndex:(NSUInteger)idx outOf:(NSUInteger)max andMenuType:(BJRadialMenuType)menuType
+{
+    // If it's a full circle we don't want the edges to overlap
+    // but if it's a semicircle, we do
+    if (menuType == kBJRadialMenuTypeSemiCircle) {
+        max--;
+    }
+    
+    CGPoint relPos = [BJRadialUtilities getPointAlongCircleForItem:idx
+                                                             outOf:max
+                                                           between:_minAngle
+                                                               and:_maxAngle
+                                                        withRadius:_radius];
+    
+    return CGPointMake(position.x + relPos.x, position.y + relPos.y);
+}
+
 #pragma mark - SubMenu Actions
 
-- (void)openBJRadialSubMenu:(BJRadialSubMenu *)subMenu atPosition:(CGPoint)aPosition withDelay:(CGFloat)delay
+- (void)openRadialSubMenu:(BJRadialSubMenu *)subMenu atPosition:(CGPoint)aPosition withDelay:(CGFloat)delay
 {
     [subMenu openToPosition:aPosition basePosition:position withDelay:delay];
 }
 
-- (void)closeBJRadialSubMenu:(BJRadialSubMenu *)subMenu withDelay:(CGFloat)delay
+- (void)closeRadialSubMenu:(BJRadialSubMenu *)subMenu withDelay:(CGFloat)delay
 {
     [subMenu closeWithDelay:delay];
 }
 
-- (void)higlightBJRadialSubMenu:(BJRadialSubMenu *)subMenu
+- (void)higlightRadialSubMenu:(BJRadialSubMenu *)subMenu
 {
     activeSubMenuIndex = [_subMenus indexOfObject:subMenu];
     [subMenu highlight];
 }
 
-- (void)unhiglightBJRadialSubMenu:(BJRadialSubMenu *)subMenu
+- (void)unhiglightRadialSubMenu:(BJRadialSubMenu *)subMenu
 {
     activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
     [subMenu unhighlight];
 }
 
-- (void)selectBJRadialSubMenu:(BJRadialSubMenu *)subMenu withDelay:(CGFloat)origDelay
+- (void)selectRadialSubMenu:(BJRadialSubMenu *)subMenu withDelay:(CGFloat)origDelay
 {
     [subMenu selectWithDelay:origDelay + _selectedDelay];
 }
