@@ -1,18 +1,18 @@
 //
-//  RadialMenu.m
-//  RadialMenuDemo
+//  BJRadialMenu.m
+//  BJRadialMenuDemo
 //
 //  Created by Brad Jasper on 5/23/14.
 //  Copyright (c) 2014 Brad Jasper. All rights reserved.
 //
 
-#import "RadialMenu.h"
+#import "BJRadialMenu.h"
 
-@interface RadialMenu ()
+@interface BJRadialMenu ()
 @property (strong, nonatomic) NSArray *subMenus;
 @end
 
-@implementation RadialMenu
+@implementation BJRadialMenu
 
 #pragma mark - Init
 
@@ -22,7 +22,7 @@
     if (self)
     {
         NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
-        [subMenus enumerateObjectsUsingBlock:^(RadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
+        [subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
             subMenu.delegate = self;
             subMenu.tag = idx;
             [self addSubview:subMenu];
@@ -43,7 +43,7 @@
     NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
     for (UIView *view in views) {
         
-        RadialSubMenu *subMenu = [[RadialSubMenu alloc] initWithView:view];
+        BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] initWithView:view];
         [preparedSubMenus addObject:subMenu];
     }
     
@@ -54,7 +54,7 @@
 {
     NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
     for (NSString *text in textItems) {
-        RadialSubMenu *subMenu = [[RadialSubMenu alloc] initWithText:text];
+        BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] initWithText:text];
         [preparedSubMenus addObject:subMenu];
     }
     
@@ -64,8 +64,8 @@
 - (void)resetToDefaults
 {
     position = CGPointZero;
-    activeSubMenuIndex = kRadialMenuNoActiveSubMenu;
-    _menuState = kRadialMenuStateClosed;
+    activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
+    _menuState = kBJRadialMenuStateClosed;
     _openDelayStep = 0.055;
     _closeDelayStep = 0.045;
     _selectedDelay = 1;
@@ -83,7 +83,7 @@
         return;
     }
     
-    if (_menuState != kRadialMenuStateClosed) {
+    if (_menuState != kBJRadialMenuStateClosed) {
         NSLog(@"Menu isn't closed or closing...can't open");
         return;
     }
@@ -92,133 +92,133 @@
     
     position = aPosition;
     
-    RadialMenuType menuType;
+    BJRadialMenuType menuType;
     
     float angleDiff = _maxAngle - _minAngle;
     if (angleDiff == 360.0) {
-        menuType = kRadialMenuTypeFullCircle;
+        menuType = kBJRadialMenuTypeFullCircle;
     } else {
-        menuType = kRadialMenuTypeSemiCircle;
+        menuType = kBJRadialMenuTypeSemiCircle;
     }
     
     
     NSUInteger numSubMenus = [_subMenus count];
-    [_subMenus enumerateObjectsUsingBlock:^(RadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
+    [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
 
         NSUInteger idx = zeroIdx + 1;
         CGFloat delay = _openDelayStep * idx;
 
         NSUInteger max = numSubMenus;
-        if (menuType == kRadialMenuTypeSemiCircle) {
+        if (menuType == kBJRadialMenuTypeSemiCircle) {
             max--;
         }
 
-        CGPoint relPos = [RadialUtilities getPointAlongCircleForItem:idx
+        CGPoint relPos = [BJRadialUtilities getPointAlongCircleForItem:idx
                                                                outOf:max
                                                              between:_minAngle
                                                                  and:_maxAngle
                                                           withRadius:_radius];
         CGPoint absPos = CGPointMake(aPosition.x + relPos.x, aPosition.y + relPos.y);
         
-        [self openRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
+        [self openBJRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
     }];
 }
 
 - (void)close
 {
-    if (_menuState == kRadialMenuStateClosed) {
+    if (_menuState == kBJRadialMenuStateClosed) {
         NSLog(@"Menu is already closed");
         return;
     }
     
     [self closing];
     
-    activeSubMenuIndex = kRadialMenuNoActiveSubMenu;
+    activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
     
-    [_subMenus enumerateObjectsUsingBlock:^(RadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
+    [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
         NSUInteger oneIdx = zeroIdx + 1;
         CGFloat delay = _closeDelayStep * oneIdx;
         
-        if (subMenu.menuState == kRadialSubMenuStateHighlighted) {
-            [self selectRadialSubMenu:subMenu withDelay:delay];
+        if (subMenu.menuState == kBJRadialSubMenuStateHighlighted) {
+            [self selectBJRadialSubMenu:subMenu withDelay:delay];
         } else {
-            [self closeRadialSubMenu:subMenu withDelay:delay];
+            [self closeBJRadialSubMenu:subMenu withDelay:delay];
         }
     }];
 }
 
 - (void)moveAtPosition:(CGPoint)aPosition
 {
-    if (_menuState != kRadialMenuStateOpened &&
-        _menuState != kRadialMenuStateHighlighted &&
-        _menuState != kRadialMenuStateUnhighlighted) {
+    if (_menuState != kBJRadialMenuStateOpened &&
+        _menuState != kBJRadialMenuStateHighlighted &&
+        _menuState != kBJRadialMenuStateUnhighlighted) {
         return;
     }
     
     // Check if we moved off active sub menu
-    if (activeSubMenuIndex != kRadialMenuNoActiveSubMenu) {
-        RadialSubMenu *subMenu = [_subMenus objectAtIndex:activeSubMenuIndex];
+    if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) {
+        BJRadialSubMenu *subMenu = [_subMenus objectAtIndex:activeSubMenuIndex];
         
         if (![subMenu isHighlightedAtPosition:aPosition]) {
-            [self unhiglightRadialSubMenu:subMenu];
+            [self unhiglightBJRadialSubMenu:subMenu];
         }
         return;
     }
     
-    if (activeSubMenuIndex != kRadialMenuNoActiveSubMenu) return;
+    if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) return;
     
     // Otherwise figure out where we are
-    [_subMenus enumerateObjectsUsingBlock:^(RadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
+    [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
         if (activeSubMenuIndex == idx) return;
         
         if ([subMenu isHighlightedAtPosition:aPosition]) {
             
-            if (activeSubMenuIndex != kRadialMenuNoActiveSubMenu) {
-                [self unhiglightRadialSubMenu:subMenu];
+            if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) {
+                [self unhiglightBJRadialSubMenu:subMenu];
             }
             
-            [self higlightRadialSubMenu:subMenu];
+            [self higlightBJRadialSubMenu:subMenu];
         }
     }];
 }
 
 #pragma mark - SubMenu Actions
 
-- (void)openRadialSubMenu:(RadialSubMenu *)subMenu atPosition:(CGPoint)aPosition withDelay:(CGFloat)delay
+- (void)openBJRadialSubMenu:(BJRadialSubMenu *)subMenu atPosition:(CGPoint)aPosition withDelay:(CGFloat)delay
 {
     [subMenu openToPosition:aPosition basePosition:position withDelay:delay];
 }
 
-- (void)closeRadialSubMenu:(RadialSubMenu *)subMenu withDelay:(CGFloat)delay
+- (void)closeBJRadialSubMenu:(BJRadialSubMenu *)subMenu withDelay:(CGFloat)delay
 {
     [subMenu closeWithDelay:delay];
 }
 
-- (void)higlightRadialSubMenu:(RadialSubMenu *)subMenu
+- (void)higlightBJRadialSubMenu:(BJRadialSubMenu *)subMenu
 {
     activeSubMenuIndex = [_subMenus indexOfObject:subMenu];
     [subMenu highlight];
 }
 
-- (void)unhiglightRadialSubMenu:(RadialSubMenu *)subMenu
+- (void)unhiglightBJRadialSubMenu:(BJRadialSubMenu *)subMenu
 {
-    activeSubMenuIndex = kRadialMenuNoActiveSubMenu;
+    activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
     [subMenu unhighlight];
 }
 
-- (void)selectRadialSubMenu:(RadialSubMenu *)subMenu withDelay:(CGFloat)origDelay
+- (void)selectBJRadialSubMenu:(BJRadialSubMenu *)subMenu withDelay:(CGFloat)origDelay
 {
     [subMenu selectWithDelay:origDelay + _selectedDelay];
 }
 
 #pragma mark - SubMenu Delegate Callbacks
 
-- (void)radialSubMenuHasOpened:(RadialSubMenu *)subMenu
+- (void)radialSubMenuHasOpened:(BJRadialSubMenu *)subMenu
 {
     NSUInteger numOpenedMenus = 0;
     
-    for (RadialSubMenu *aSubMenu in _subMenus) {
-        if (aSubMenu.menuState == kRadialSubMenuStateOpened) {
+    for (BJRadialSubMenu *aSubMenu in _subMenus) {
+        if (aSubMenu.menuState == kBJRadialSubMenuStateOpened) {
             numOpenedMenus++;
         }
     }
@@ -228,12 +228,12 @@
     }
 }
 
-- (void)radialSubMenuHasClosed:(RadialSubMenu *)subMenu
+- (void)radialSubMenuHasClosed:(BJRadialSubMenu *)subMenu
 {
     NSUInteger numClosedMenus = 0;
     
-    for (RadialSubMenu *aSubMenu in _subMenus) {
-        if (aSubMenu.menuState == kRadialSubMenuStateClosed) {
+    for (BJRadialSubMenu *aSubMenu in _subMenus) {
+        if (aSubMenu.menuState == kBJRadialSubMenuStateClosed) {
             numClosedMenus++;
         }
     }
@@ -243,17 +243,17 @@
     }
 }
 
-- (void)radialSubMenuHasHighlighted:(RadialSubMenu *)subMenu
+- (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu
 {
     [self highlighted:subMenu];
 }
 
-- (void)radialSubMenuHasUnhighlighted:(RadialSubMenu *)subMenu
+- (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu
 {
     [self unhighlighted:subMenu];
 }
 
-- (void)radialSubMenuHasSelected:(RadialSubMenu *)subMenu
+- (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu
 {
     [self selected:subMenu];
 }
@@ -262,7 +262,7 @@
 
 - (void)opened
 {
-    _menuState = kRadialMenuStateOpened;
+    _menuState = kBJRadialMenuStateOpened;
     if([[self delegate] respondsToSelector:@selector(radialMenuHasOpened)]) {
         [[self delegate] radialMenuHasOpened];
     }
@@ -270,31 +270,31 @@
 
 - (void)closed
 {
-    _menuState = kRadialMenuStateClosed;
+    _menuState = kBJRadialMenuStateClosed;
     if([[self delegate] respondsToSelector:@selector(radialMenuHasClosed)]) {
         [[self delegate] radialMenuHasClosed];
     }
 }
 
-- (void)highlighted:(RadialSubMenu *)subMenu
+- (void)highlighted:(BJRadialSubMenu *)subMenu
 {
-    _menuState = kRadialMenuStateHighlighted;
+    _menuState = kBJRadialMenuStateHighlighted;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasHighlighted:)]) {
         [[self delegate] radialSubMenuHasHighlighted:subMenu];
     }
 }
 
-- (void)unhighlighted:(RadialSubMenu *)subMenu
+- (void)unhighlighted:(BJRadialSubMenu *)subMenu
 {
-    _menuState = kRadialMenuStateUnhighlighted;
+    _menuState = kBJRadialMenuStateUnhighlighted;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasUnhighlighted:)]) {
         [[self delegate] radialSubMenuHasUnhighlighted:subMenu];
     }
 }
 
-- (void)selected:(RadialSubMenu *)subMenu
+- (void)selected:(BJRadialSubMenu *)subMenu
 {
-    _menuState = kRadialMenuStateSelected;
+    _menuState = kBJRadialMenuStateSelected;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasSelected:)]) {
         [[self delegate] radialSubMenuHasSelected:subMenu];
     }
@@ -302,7 +302,7 @@
 
 - (void)opening
 {
-    _menuState = kRadialMenuStateOpening;
+    _menuState = kBJRadialMenuStateOpening;
     if([[self delegate] respondsToSelector:@selector(radialMenuIsOpening)]) {
         [[self delegate] radialMenuIsOpening];
     }
@@ -310,7 +310,7 @@
 
 - (void)closing
 {
-    _menuState = kRadialMenuStateClosing;
+    _menuState = kBJRadialMenuStateClosing;
     if([[self delegate] respondsToSelector:@selector(radialMenuIsClosing)]) {
         [[self delegate] radialMenuIsClosing];
     }

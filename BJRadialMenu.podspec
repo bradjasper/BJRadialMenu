@@ -17,10 +17,6 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source_files = 'Classes'
+  s.source_files = 'BJRadialMenu'
   s.dependency 'pop', '~> 1.0'
-
-#  s.resources = 'Assets/*.png'
-  # s.public_header_files = 'Classes/**/*.h'
-  # s.frameworks = 'SomeFramework', 'AnotherFramework'
 end

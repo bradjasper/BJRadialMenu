@@ -1,14 +1,14 @@
 //
-//  RadialUtilities.m
-//  RadialMenuDemo
+//  BJRadialUtilities.m
+//  BJRadialMenuDemo
 //
 //  Created by Brad Jasper on 5/25/14.
 //  Copyright (c) 2014 Brad Jasper. All rights reserved.
 //
 
-#import "RadialUtilities.h"
+#import "BJRadialUtilities.h"
 
-@implementation RadialUtilities
+@implementation BJRadialUtilities
 
 CGFloat DegreesToRadians(CGFloat degrees)
 {

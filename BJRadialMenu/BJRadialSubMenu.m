@@ -1,14 +1,14 @@
 //
-//  RadialSubMenu.m
-//  RadialMenuDemo
+//  BJRadialSubMenu.m
+//  BJRadialMenuDemo
 //
 //  Created by Brad Jasper on 5/25/14.
 //  Copyright (c) 2014 Brad Jasper. All rights reserved.
 //
 
-#import "RadialSubMenu.h"
+#import "BJRadialSubMenu.h"
 
-@interface RadialSubMenu () {
+@interface BJRadialSubMenu () {
     CGPoint origPosition;
     CGRect  origBounds;
     CGFloat origCornerRadius;
@@ -21,7 +21,7 @@
 
 @end
 
-@implementation RadialSubMenu
+@implementation BJRadialSubMenu
 
 #pragma mark - Init
 
@@ -68,7 +68,7 @@
 
 - (void)initialize
 {
-    _menuState = kRadialSubMenuStateClosed;
+    _menuState = kBJRadialSubMenuStateClosed;
     
     origPosition = self.center;
     origBounds = self.bounds;
@@ -136,7 +136,7 @@
 
 - (void)highlight
 {
-    if (_menuState != kRadialSubMenuStateOpened) {
+    if (_menuState != kBJRadialSubMenuStateOpened) {
         return;
     }
     
@@ -165,15 +165,15 @@
     }
     
     if ([anim.name isEqualToString:@"open"]) {
-        if (_menuState == kRadialSubMenuStateOpening) {
+        if (_menuState == kBJRadialSubMenuStateOpening) {
             [self opened];
-        } else if (_menuState == kRadialSubMenuStateClosing) {
+        } else if (_menuState == kBJRadialSubMenuStateClosing) {
             [self closeAnimation];
         }
     } else if ([anim.name isEqualToString:@"close"]) {
-        if (_menuState == kRadialSubMenuStateOpening) {
+        if (_menuState == kBJRadialSubMenuStateOpening) {
             [self openAnimation];
-        } else if (_menuState == kRadialSubMenuStateClosing) {
+        } else if (_menuState == kBJRadialSubMenuStateClosing) {
             [self closed];
         }
     }
@@ -274,7 +274,7 @@
 
 - (void)closed
 {
-    _menuState = kRadialSubMenuStateClosed;
+    _menuState = kBJRadialSubMenuStateClosed;
     
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasClosed:)]) {
         [[self delegate] radialSubMenuHasClosed:self];
@@ -283,13 +283,13 @@
 
 - (void)opening
 {
-    _menuState = kRadialSubMenuStateOpening;
+    _menuState = kBJRadialSubMenuStateOpening;
     
 }
 
 - (void)opened
 {
-    _menuState = kRadialSubMenuStateOpened;
+    _menuState = kBJRadialSubMenuStateOpened;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasOpened:)]) {
         [[self delegate] radialSubMenuHasOpened:self];
     }
@@ -297,7 +297,7 @@
 
 - (void)highlighting
 {
-    _menuState = kRadialSubMenuStateHighlighting;
+    _menuState = kBJRadialSubMenuStateHighlighting;
     
     // currently no animation so move to next
     [self highlighted];
@@ -305,7 +305,7 @@
 
 - (void)highlighted
 {
-    _menuState = kRadialSubMenuStateHighlighted;
+    _menuState = kBJRadialSubMenuStateHighlighted;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasHighlighted:)]) {
         [[self delegate] radialSubMenuHasHighlighted:self];
     }
@@ -313,7 +313,7 @@
 
 - (void)unhighlighting
 {
-    _menuState = kRadialSubMenuStateUnhighlighting;
+    _menuState = kBJRadialSubMenuStateUnhighlighting;
     
     // currently no animation so move to next
     [self unhighlighted];
@@ -321,7 +321,7 @@
 
 - (void)unhighlighted
 {
-    _menuState = kRadialSubMenuStateUnhighlighted;
+    _menuState = kBJRadialSubMenuStateUnhighlighted;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasUnhighlighted:)]) {
         [[self delegate] radialSubMenuHasUnhighlighted:self];
     }
@@ -329,7 +329,7 @@
 
 - (void)selected
 {
-    _menuState = kRadialSubMenuStateSelected;
+    _menuState = kBJRadialSubMenuStateSelected;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasSelected:)]) {
         [[self delegate] radialSubMenuHasSelected:self];
     }
@@ -337,6 +337,6 @@
 
 - (void)closing
 {
-    _menuState = kRadialSubMenuStateClosing;
+    _menuState = kBJRadialSubMenuStateClosing;
 }
 @end

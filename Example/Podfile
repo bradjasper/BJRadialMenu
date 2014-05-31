@@ -1,8 +1,10 @@
 # Uncomment this line to define a global platform for your project
 # platform :ios, '7.0'
 
-target "Demo" do
+target "BJRadialMenuExample" do
   pod "BJRadialMenu", :path => "../"
+  pod "POP+MCAnimate", "~> 1.0"
+  pod "Tweaks", "~> 1.1.0"
 end
 
 # Uncomment the following lines to add testing dependencies
