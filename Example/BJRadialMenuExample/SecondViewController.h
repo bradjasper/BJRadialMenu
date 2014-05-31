@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BJRadialMenu.h"
 
-@interface SecondViewController : UIViewController
+@interface SecondViewController : UIViewController <BJRadialMenuDelegate>
 
 @end

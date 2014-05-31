@@ -43,6 +43,7 @@ typedef NS_ENUM(NSUInteger, BJRadialSubMenuState) {
 @property (nonatomic, readonly) BJRadialSubMenuState menuState;
 
 - (id)initWithView:(UIView *)aView;
+- (id)initWithLayer:(CALayer *)layer;
 - (id)initWithText:(NSString *)text;
 
 - (void)openToPosition:(CGPoint)toPosition basePosition:(CGPoint)basePosition;

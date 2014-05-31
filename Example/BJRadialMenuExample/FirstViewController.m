@@ -11,6 +11,7 @@
 // helpful but not required for BJRadialMenu
 #import <Tweaks/FBTweakInline.h>
 #import "POP+MCAnimate.h"
+#import "UIColor+MLPFlatColors.h"
 
 @interface FirstViewController ()
 
@@ -35,16 +36,16 @@
     self.radialMenu.delegate = self;
     
     // All of these are configurable by shaking the device
-    FBTweakBind(self.radialMenu, minAngle, @"menu", @"angle", @"min", 180);
-    FBTweakBind(self.radialMenu, maxAngle, @"menu", @"angle", @"max", 360);
-    FBTweakBind(self.radialMenu, openDelayStep, @"menu", @"open", @"delayStep", 0.055);
-    FBTweakBind(self.radialMenu, closeDelayStep, @"menu", @"close", @"delayStep", 0.045);
-    FBTweakBind(self.radialMenu, selectedDelay, @"menu", @"selected", @"delay", 1.0);
-    FBTweakBind(self.radialMenu, radius, @"menu", @"submenu", @"radius", 100);
+    FBTweakBind(self.radialMenu, minAngle, @"menu1", @"angle", @"min", 180);
+    FBTweakBind(self.radialMenu, maxAngle, @"menu1", @"angle", @"max", 360);
+    FBTweakBind(self.radialMenu, openDelayStep, @"menu1", @"open", @"delayStep", 0.055);
+    FBTweakBind(self.radialMenu, closeDelayStep, @"menu1", @"close", @"delayStep", 0.045);
+    FBTweakBind(self.radialMenu, selectedDelay, @"menu1", @"selected", @"delay", 1.0);
+    FBTweakBind(self.radialMenu, radius, @"menu1", @"submenu", @"radius", 100);
     
     // Create long-press gesture and assign to button
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(pressedAddButton:)];
-    FBTweakBind(longPress, minimumPressDuration, @"view", @"button", @"pressDuration", 0.4);
+    FBTweakBind(longPress, minimumPressDuration, @"view1", @"button", @"pressDuration", 0.4);
 
     [self.addButton addGestureRecognizer:longPress];
     self.addButton.center = self.view.center;
@@ -73,26 +74,31 @@
 
 - (NSArray *)menuItems
 {
-    NSUInteger numMenuItems = FBTweakValue(@"menu", @"submenu", @"count", 100);
-    
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-    for (int i = 1; i <= numMenuItems; i++)
+    if (_menuItems == nil)
     {
-        [items addObject:[NSString stringWithFormat:@"%@", @(i)]];
+        NSUInteger numMenuItems = FBTweakValue(@"menu1", @"submenu", @"count", 4);
+        
+        NSMutableArray *items = [[NSMutableArray alloc] init];
+        for (int i = 1; i <= numMenuItems; i++)
+        {
+            [items addObject:[NSString stringWithFormat:@"%@", @(i)]];
+        }
+        
+        _menuItems = items;
     }
     
-    return items;
+    return _menuItems;
 }
 
 // Button to display menu
 - (UIButton *)addButton
 {
-    NSUInteger radius = FBTweakValue(@"view", @"button", @"radius", 30);
-    NSUInteger borderWidth = FBTweakValue(@"view", @"button", @"borderWidth", 2);
+    NSUInteger radius = FBTweakValue(@"view1", @"button", @"radius", 30);
+    NSUInteger borderWidth = FBTweakValue(@"view1", @"button", @"borderWidth", 2);
     
     if (!_addButton) {
         NSLog(@"creating add button");
-        float edgeMultiplier = FBTweakValue(@"view", @"button", @"edgeMultiplier", 0.5);
+        float edgeMultiplier = FBTweakValue(@"view1", @"button", @"edgeMultiplier", 0.5);
         float edgeAmount = radius * edgeMultiplier;
         
         UIImage *addImage = [UIImage imageNamed:@"plus"];

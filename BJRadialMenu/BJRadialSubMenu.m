@@ -50,6 +50,13 @@
     return self;
 }
 
+- (id)initWithLayer:(CALayer *)layer
+{
+    self = [self initWithFrame:layer.bounds];
+    [self.layer addSublayer:layer];
+    return self;
+}
+
 - (id)initWithText:(NSString *)text
 {
     NSUInteger radius = 35;

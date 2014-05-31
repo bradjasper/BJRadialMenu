@@ -63,6 +63,17 @@
     return [self initWithSubMenus:preparedSubMenus];
 }
 
+- (id)initWithLayers:(NSArray *)layers
+{
+    NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
+    for (CALayer *layer in layers) {
+        BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] initWithLayer:layer];
+        [preparedSubMenus addObject:subMenu];
+    }
+    
+    return [self initWithSubMenus:preparedSubMenus];
+}
+
 - (void)resetToDefaults
 {
     position = CGPointZero;

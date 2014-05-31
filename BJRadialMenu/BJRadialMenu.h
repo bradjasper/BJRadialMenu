@@ -61,6 +61,7 @@ typedef NS_ENUM(NSUInteger, BJRadialMenuState) {
 
 - (id)initWithSubMenus:(NSArray *)subMenus;
 - (id)initWithViews:(NSArray *)views;
+- (id)initWithLayers:(NSArray *)layers;
 - (id)initWithText:(NSArray *)textItems;
 
 - (void)openAtPosition:(CGPoint)aPosition;
