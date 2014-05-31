@@ -92,33 +92,24 @@
     
     position = aPosition;
     
-    BJRadialMenuType menuType;
-    
-    float angleDiff = _maxAngle - _minAngle;
-    if (angleDiff == 360.0) {
-        menuType = kBJRadialMenuTypeFullCircle;
-    } else {
-        menuType = kBJRadialMenuTypeSemiCircle;
-    }
-    
-    
+    BJRadialMenuType menuType = [self menuTypeFromCurrentAngles];
     NSUInteger numSubMenus = [_subMenus count];
+    
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
 
         NSUInteger idx = zeroIdx + 1;
-        CGFloat delay = _openDelayStep * idx;
-
         NSUInteger max = numSubMenus;
         if (menuType == kBJRadialMenuTypeSemiCircle) {
             max--;
         }
-
-        CGPoint relPos = [BJRadialUtilities getPointAlongCircleForItem:idx
-                                                               outOf:max
-                                                             between:_minAngle
-                                                                 and:_maxAngle
-                                                          withRadius:_radius];
+        
+        CGPoint relPos = [BJRadialUtilities getPointAlongCircleForItem:zeroIdx
+                                                                 outOf:max
+                                                               between:_minAngle
+                                                                   and:_maxAngle
+                                                            withRadius:_radius];
         CGPoint absPos = CGPointMake(aPosition.x + relPos.x, aPosition.y + relPos.y);
+        CGFloat delay = _openDelayStep * idx;
         
         [self openBJRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
     }];
@@ -145,6 +136,16 @@
             [self closeBJRadialSubMenu:subMenu withDelay:delay];
         }
     }];
+}
+
+- (BJRadialMenuType)menuTypeFromCurrentAngles
+{
+    float angleDiff = _maxAngle - _minAngle;
+    if (angleDiff == 360.0) {
+        return kBJRadialMenuTypeFullCircle;
+    }
+    
+    return kBJRadialMenuTypeSemiCircle;
 }
 
 - (void)moveAtPosition:(CGPoint)aPosition
