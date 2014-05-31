@@ -1,0 +1,342 @@
+//
+//  RadialSubMenu.m
+//  RadialMenuDemo
+//
+//  Created by Brad Jasper on 5/25/14.
+//  Copyright (c) 2014 Brad Jasper. All rights reserved.
+//
+
+#import "RadialSubMenu.h"
+
+@interface RadialSubMenu () {
+    CGPoint origPosition;
+    CGRect  origBounds;
+    CGFloat origCornerRadius;
+    
+    CGFloat openDelay;
+    CGFloat closeDelay;
+    CGFloat openDuration;
+    CGFloat closeDuration;
+}
+
+@end
+
+@implementation RadialSubMenu
+
+#pragma mark - Init
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        [self initialize];
+    }
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self initialize];
+    }
+    return self;
+}
+
+- (id)initWithView:(UIView *)aView
+{
+    self = [self initWithFrame:aView.frame];
+    [self addSubview:aView];
+    return self;
+}
+
+- (id)initWithText:(NSString *)text
+{
+    NSUInteger radius = 35;
+    NSUInteger borderWidth = 2;
+    CGColorRef borderColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.5].CGColor;
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, radius*2, radius*2)];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.layer.borderColor = borderColor;
+    label.layer.borderWidth = borderWidth;
+    label.layer.cornerRadius = radius;
+    label.text = text;
+    
+    return [self initWithView:label];
+}
+
+- (void)initialize
+{
+    _menuState = kRadialSubMenuStateClosed;
+    
+    origPosition = self.center;
+    origBounds = self.bounds;
+    origCornerRadius = self.layer.cornerRadius;
+    
+    currPosition = self.center;
+    
+    // hide by default (open/close take care of transparency so there are no jumps)
+    self.alpha = 0.0;
+    
+    openDelay = 0.0;
+    closeDelay = 0.0;
+    openDuration = 0.03125;
+    closeDuration = 0.125;
+}
+
+#pragma mark - Actions
+
+- (void)openToPosition:(CGPoint)toPosition basePosition:(CGPoint)basePosition withDelay:(CGFloat)delay;
+{
+    currPosition = toPosition;
+    origPosition = basePosition;
+    
+    self.center = origPosition;
+    
+    openDelay = delay;
+    
+    [self opening];
+    [self fadeInWithDelay:openDelay];
+    [self openAnimation];
+}
+
+- (void)openToPosition:(CGPoint)toPosition basePosition:(CGPoint)basePosition;
+{
+    [self openToPosition:toPosition basePosition:basePosition withDelay:0.0];
+}
+
+- (void)close
+{
+    [self closeWithDelay:0.0];
+}
+
+- (BOOL)isHighlightedAtPosition:(CGPoint)aPosition
+{
+    return CGRectContainsPoint(self.frame, aPosition);
+}
+
+- (void)closeWithDelay:(CGFloat)delay
+{
+    closeDelay = delay;
+    [self closing];
+    [self closeAnimation];
+}
+
+- (void)selectWithDelay:(CGFloat)delay
+{
+    [self selected];
+    [self closeWithDelay:delay];
+}
+
+- (void)select
+{
+    [self selectWithDelay:0.0];
+}
+
+- (void)highlight
+{
+    if (_menuState != kRadialSubMenuStateOpened) {
+        return;
+    }
+    
+    [self highlighting];
+}
+
+- (void)unhighlight;
+{
+    [self unhighlighting];
+}
+
+#pragma mark - Animation Delegates
+
+- (void)pop_animationDidStart:(POPAnimation *)anim
+{
+    if ([anim.name isEqualToString:@"open"]) {
+    } else if ([anim.name isEqualToString:@"close"]) {
+        [self fadeOutWithDelay:0.0];
+    }
+}
+
+- (void)pop_animationDidStop:(POPAnimation *)anim finished:(BOOL)finished
+{
+    if (!finished) {
+        return;
+    }
+    
+    if ([anim.name isEqualToString:@"open"]) {
+        if (_menuState == kRadialSubMenuStateOpening) {
+            [self opened];
+        } else if (_menuState == kRadialSubMenuStateClosing) {
+            [self closeAnimation];
+        }
+    } else if ([anim.name isEqualToString:@"close"]) {
+        if (_menuState == kRadialSubMenuStateOpening) {
+            [self openAnimation];
+        } else if (_menuState == kRadialSubMenuStateClosing) {
+            [self closed];
+        }
+    }
+}
+
+#pragma mark - Animations
+
+- (POPAnimation *)openAnimation
+{
+    
+    CGFloat openSpringSpeed = 17.0;
+    CGFloat openSpringBounciness = 8.0;
+    CFTimeInterval absDelay = CACurrentMediaTime() + openDelay;
+    
+    POPSpringAnimation *anim = [self pop_animationForKey:@"open"];
+    
+    
+    if (anim == NULL)
+    {
+        anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
+        anim.name = @"open";
+        anim.beginTime = absDelay;
+        anim.toValue = [NSValue valueWithCGPoint:currPosition];
+        anim.springSpeed = openSpringSpeed;
+        anim.springBounciness = openSpringBounciness;
+        anim.delegate = self;
+        
+        [self pop_addAnimation:anim forKey:@"open"];
+    }
+    
+    return anim;
+}
+
+
+- (POPAnimation *)closeAnimation
+{
+    POPBasicAnimation *anim = [self pop_animationForKey:@"close"];
+    CFTimeInterval absDelay = CACurrentMediaTime() + closeDelay;
+    
+    if (anim == NULL) {
+        anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewCenter];
+        anim.name = @"close";
+        anim.beginTime = absDelay;
+        anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim.toValue = [NSValue valueWithCGPoint:origPosition];
+        anim.duration = closeDuration;
+        anim.delegate = self;
+        
+        [self pop_addAnimation:anim forKey:@"close"];
+    }
+    
+    return anim;
+}
+
+- (POPAnimation *)fadeOutWithDelay:(CGFloat)delay
+{
+    
+    CFTimeInterval absDelay = CACurrentMediaTime() + delay;
+    POPBasicAnimation *anim = [self pop_animationForKey:@"closeAlpha"];
+    
+    if (anim == NULL) {
+        
+        anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
+        anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim.duration = closeDuration;
+        anim.beginTime = absDelay;
+        anim.toValue = @(0.0);
+        
+        [self pop_addAnimation:anim forKey:@"closeAlpha"];
+    } else {
+        anim.toValue = @(0.0);
+    }
+    
+    return anim;
+}
+
+- (POPAnimation *)fadeInWithDelay:(CGFloat)delay
+{
+    
+    CFTimeInterval absDelay = CACurrentMediaTime() + delay;
+    POPBasicAnimation *anim = [self pop_animationForKey:@"openAlpha"];
+    
+    if (anim == NULL) {
+        anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
+        anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim.toValue = @(1.0);
+        anim.beginTime = absDelay;
+        anim.duration = openDuration;
+        [self pop_addAnimation:anim forKey:@"openAlpha"];
+    } else {
+        anim.toValue = @(1.0);
+    }
+    
+    return anim;
+}
+
+#pragma mark - Events
+
+- (void)closed
+{
+    _menuState = kRadialSubMenuStateClosed;
+    
+    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasClosed:)]) {
+        [[self delegate] radialSubMenuHasClosed:self];
+    }
+}
+
+- (void)opening
+{
+    _menuState = kRadialSubMenuStateOpening;
+    
+}
+
+- (void)opened
+{
+    _menuState = kRadialSubMenuStateOpened;
+    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasOpened:)]) {
+        [[self delegate] radialSubMenuHasOpened:self];
+    }
+}
+
+- (void)highlighting
+{
+    _menuState = kRadialSubMenuStateHighlighting;
+    
+    // currently no animation so move to next
+    [self highlighted];
+}
+
+- (void)highlighted
+{
+    _menuState = kRadialSubMenuStateHighlighted;
+    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasHighlighted:)]) {
+        [[self delegate] radialSubMenuHasHighlighted:self];
+    }
+}
+
+- (void)unhighlighting
+{
+    _menuState = kRadialSubMenuStateUnhighlighting;
+    
+    // currently no animation so move to next
+    [self unhighlighted];
+}
+
+- (void)unhighlighted
+{
+    _menuState = kRadialSubMenuStateUnhighlighted;
+    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasUnhighlighted:)]) {
+        [[self delegate] radialSubMenuHasUnhighlighted:self];
+    }
+}
+
+- (void)selected
+{
+    _menuState = kRadialSubMenuStateSelected;
+    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasSelected:)]) {
+        [[self delegate] radialSubMenuHasSelected:self];
+    }
+}
+
+- (void)closing
+{
+    _menuState = kRadialSubMenuStateClosing;
+}
+@end
