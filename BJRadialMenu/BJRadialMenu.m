@@ -9,7 +9,9 @@
 #import "BJRadialMenu.h"
 
 @interface BJRadialMenu ()
-@property (strong, nonatomic) NSArray *subMenus;
+@property (nonatomic) NSArray *subMenus;
+@property (nonatomic) NSUInteger numMenusOpening;
+@property (nonatomic) NSUInteger numMenusOpened;
 @end
 
 @implementation BJRadialMenu
@@ -66,6 +68,8 @@
     position = CGPointZero;
     activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
     _menuState = kBJRadialMenuStateClosed;
+    _numMenusOpened = 0;
+    _numMenusOpening = 0;
     _openDelayStep = 0.055;
     _closeDelayStep = 0.045;
     _selectedDelay = 1;
@@ -96,10 +100,12 @@
     NSUInteger numSubMenus = [_subMenus count];
     
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
+        
         CGPoint absPos = [self getAbsolutePositionForSubMenuWithIndex:idx
                                                                 outOf:numSubMenus
                                                           andMenuType:menuType];
         CGFloat delay = _openDelayStep * (idx + 1);
+        _numMenusOpening++;
         [self openRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
     }];
 }
@@ -225,30 +231,14 @@
 
 - (void)radialSubMenuHasOpened:(BJRadialSubMenu *)subMenu
 {
-    NSUInteger numOpenedMenus = 0;
-    
-    for (BJRadialSubMenu *aSubMenu in _subMenus) {
-        if (aSubMenu.menuState == kBJRadialSubMenuStateOpened) {
-            numOpenedMenus++;
-        }
-    }
-    
-    if (numOpenedMenus == [_subMenus count]) {
+    if (++_numMenusOpened == [_subMenus count]) {
         [self opened];
     }
 }
 
 - (void)radialSubMenuHasClosed:(BJRadialSubMenu *)subMenu
 {
-    NSUInteger numClosedMenus = 0;
-    
-    for (BJRadialSubMenu *aSubMenu in _subMenus) {
-        if (aSubMenu.menuState == kBJRadialSubMenuStateClosed) {
-            numClosedMenus++;
-        }
-    }
-    
-    if (numClosedMenus == [_subMenus count]) {
+    if (--_numMenusOpening == 0) {
         [self closed];
     }
 }
@@ -268,7 +258,7 @@
     [self selected:subMenu];
 }
 
-# pragma mark - Delegate Callbacks
+# pragma mark - States
 
 - (void)opened
 {
@@ -312,6 +302,9 @@
 
 - (void)opening
 {
+    _numMenusOpened = 0;
+    _numMenusOpening = 0;
+    
     _menuState = kBJRadialMenuStateOpening;
     if([[self delegate] respondsToSelector:@selector(radialMenuIsOpening)]) {
         [[self delegate] radialMenuIsOpening];

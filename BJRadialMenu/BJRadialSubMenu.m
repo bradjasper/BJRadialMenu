@@ -152,8 +152,8 @@
 
 - (void)pop_animationDidStart:(POPAnimation *)anim
 {
-    if ([anim.name isEqualToString:@"open"]) {
-    } else if ([anim.name isEqualToString:@"close"]) {
+    // Start fade as soon as movement starts for close
+    if ([anim.name isEqualToString:@"close"]) {
         [self fadeOutWithDelay:0.0];
     }
 }
@@ -270,10 +270,21 @@
     return anim;
 }
 
-#pragma mark - Events
+#pragma mark - States
 
 - (void)closed
 {
+    // The following race condition exists:
+    // 1. Open starts with big delay
+    // 2. Items are closed/cancelled
+    // 3. Open animation finally starts
+    // 4. broken state
+    
+    // So when we close, make sure to remove any open animations
+    
+    [self pop_removeAnimationForKey:@"open"];
+    [self pop_removeAnimationForKey:@"openAlpha"];
+    
     _menuState = kBJRadialSubMenuStateClosed;
     
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasClosed:)]) {

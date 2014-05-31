@@ -73,7 +73,7 @@
 
 - (NSArray *)menuItems
 {
-    NSUInteger numMenuItems = FBTweakValue(@"menu", @"submenu", @"count", 4);
+    NSUInteger numMenuItems = FBTweakValue(@"menu", @"submenu", @"count", 100);
     
     NSMutableArray *items = [[NSMutableArray alloc] init];
     for (int i = 1; i <= numMenuItems; i++)
@@ -111,6 +111,16 @@
     }
     
     return _addButton;
+}
+
+- (void)radialMenuHasOpened
+{
+    NSLog(@"Radial menu open");
+}
+
+- (void)radialMenuHasClosed
+{
+    NSLog(@"Radial menu closed");
 }
 
 - (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu
