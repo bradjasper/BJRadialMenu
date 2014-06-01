@@ -1,18 +1,18 @@
 //
-//  ThirdViewController.m
+//  ExtremeViewController.m
 //  BJRadialMenuExample
 //
 //  Created by Brad Jasper on 6/1/14.
 //  Copyright (c) 2014 Brad Jasper. All rights reserved.
 //
 
-#import "ThirdViewController.h"
+#import "ExtremeViewController.h"
 
-@interface ThirdViewController ()
+@interface ExtremeViewController ()
 
 @end
 
-@implementation ThirdViewController
+@implementation ExtremeViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

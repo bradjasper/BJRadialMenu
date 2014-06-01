@@ -1,12 +1,12 @@
 //
-//  SecondViewController.m
+//  CustomizedViewController.m
 //  BJRadialMenuExample
 //
 //  Created by Brad Jasper on 5/31/14.
 //  Copyright (c) 2014 Brad Jasper. All rights reserved.
 //
 
-#import "SecondViewController.h"
+#import "CustomizedViewController.h"
 
 // helpful but not required for BJRadialMenu
 #import <Tweaks/FBTweakInline.h>
@@ -15,7 +15,7 @@
 #import "POP+MCAnimate.h"
 #import "UIColor+MLPFlatColors.h"
 
-@interface SecondViewController ()
+@interface CustomizedViewController ()
 
 @property (nonatomic) NSArray *radialSubMenus;
 @property (nonatomic) UIButton *addButton;
@@ -23,7 +23,7 @@
 
 @end
 
-@implementation SecondViewController
+@implementation CustomizedViewController
 
 - (void)viewDidLoad
 {

@@ -1,5 +1,5 @@
 //
-//  SecondViewController.h
+//  FirstViewController.h
 //  BJRadialMenuExample
 //
 //  Created by Brad Jasper on 5/31/14.
@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "BJRadialMenu.h"
 
-@interface SecondViewController : UIViewController <BJRadialMenuDelegate>
+@interface DefaultViewController : UIViewController <BJRadialMenuDelegate>
 
 @end

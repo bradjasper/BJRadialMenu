@@ -1,5 +1,5 @@
 //
-//  ThirdViewController.h
+//  ExtremeViewController.h
 //  BJRadialMenuExample
 //
 //  Created by Brad Jasper on 6/1/14.
@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ThirdViewController : UIViewController
+@interface ExtremeViewController : UIViewController
 
 @end

@@ -6,14 +6,14 @@
 //  Copyright (c) 2014 Brad Jasper. All rights reserved.
 //
 
-#import "FirstViewController.h"
+#import "DefaultViewController.h"
 
 // helpful but not required for BJRadialMenu
 #import <Tweaks/FBTweakInline.h>
 #import "POP+MCAnimate.h"
 #import "UIColor+MLPFlatColors.h"
 
-@interface FirstViewController ()
+@interface DefaultViewController()
 
 @property (nonatomic) NSArray *menuItems;
 @property (nonatomic) UIButton *addButton;
@@ -21,8 +21,7 @@
 
 @end
 
-@implementation FirstViewController
-
+@implementation DefaultViewController
 - (void)viewDidLoad
 {
     [super viewDidLoad];
