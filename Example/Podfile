@@ -6,6 +6,7 @@ target "BJRadialMenuExample" do
   pod "POP+MCAnimate", "~> 1.0"
   pod "Tweaks", "~> 1.1.0"
   pod "UIColor+MLPFlatColors", "~> 1.0"
+  pod "UIColor-CrossFade", "~> 1.1.0"
 
 
 end

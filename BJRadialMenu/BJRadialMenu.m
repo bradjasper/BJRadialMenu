@@ -8,10 +8,14 @@
 
 #import "BJRadialMenu.h"
 
-@interface BJRadialMenu ()
-// TODO: Move to non-property
-@property (nonatomic) NSUInteger numSubMenusOpening;
-@property (nonatomic) NSUInteger numSubMenusOpened;
+@interface BJRadialMenu () {
+    NSUInteger numSubMenusOpening;
+    NSUInteger numSubMenusOpened;
+    
+}
+
+@property (nonatomic) NSMutableArray *highlightedSubMenus;
+
 @end
 
 @implementation BJRadialMenu
@@ -78,8 +82,9 @@
 {
     position = CGPointZero;
     _menuState = kBJRadialMenuStateClosed;
-    _numSubMenusOpened = 0;
-    _numSubMenusOpening = 0;
+    _highlightType = kBJRadialMenuHighlightOneType;
+    numSubMenusOpened = 0;
+    numSubMenusOpening = 0;
     _radiusStep = 0.0;
     _openDelayStep = 0.045;
     _closeDelayStep = 0.035;
@@ -87,6 +92,7 @@
     _minAngle = 195;
     _maxAngle = 345;
     _radius = 100;
+    _highlightedSubMenus =  [NSMutableArray array];
 }
 
 #pragma mark - Actions
@@ -107,7 +113,7 @@
     
     position = aPosition;
     
-    BJRadialMenuType menuType = [self menuTypeFromCurrentAngles];
+    BJRadialMenuCircleType menuType = [self menuTypeFromCurrentAngles];
     NSUInteger numSubMenus = [_subMenus count];
     
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
@@ -117,7 +123,7 @@
                                                           andMenuType:menuType];
         CGFloat delay = _openDelayStep * (idx + 1);
         
-        _numSubMenusOpening++;
+        numSubMenusOpening++;
         [self openRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
     }];
 }
@@ -172,20 +178,20 @@
 
 #pragma mark - SubMenu helpers
 
-- (BJRadialMenuType)menuTypeFromCurrentAngles
+- (BJRadialMenuCircleType)menuTypeFromCurrentAngles
 {
     float angleDiff = _maxAngle - _minAngle;
     if (angleDiff == 360.0) {
-        return kBJRadialMenuTypeFullCircle;
+        return kBJRadialMenuCircleFullType;
     }
     
-    return kBJRadialMenuTypeSemiCircle;
+    return kBJRadialMenuCircleSemiType;
 }
 
-- (CGPoint)getAbsolutePositionForSubMenuWithIndex:(NSUInteger)idx outOf:(NSUInteger)max andMenuType:(BJRadialMenuType)menuType
+- (CGPoint)getAbsolutePositionForSubMenuWithIndex:(NSUInteger)idx outOf:(NSUInteger)max andMenuType:(BJRadialMenuCircleType)menuType
 {
     // If it's a full circle we don't want the edges to overlap, but if it's a semicircle, we do
-    if (menuType == kBJRadialMenuTypeSemiCircle) {
+    if (menuType == kBJRadialMenuCircleSemiType) {
         max--;
     }
     
@@ -231,25 +237,27 @@
 
 - (void)radialSubMenuHasOpened:(BJRadialSubMenu *)subMenu
 {
-    if (++_numSubMenusOpened == [_subMenus count]) {
+    if (++numSubMenusOpened == [_subMenus count]) {
         [self opened];
     }
 }
 
 - (void)radialSubMenuHasClosed:(BJRadialSubMenu *)subMenu
 {
-    if (--_numSubMenusOpening == 0) {
+    if (--numSubMenusOpening == 0) {
         [self closed];
     }
 }
 
 - (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu
 {
+    [self.highlightedSubMenus addObject:subMenu];
     [self highlighted:subMenu];
 }
 
 - (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu
 {
+    [self.highlightedSubMenus removeObject:subMenu];
     [self unhighlighted:subMenu];
 }
 
@@ -263,8 +271,8 @@
 - (void)opening
 {
     // reset
-    _numSubMenusOpened = 0;
-    _numSubMenusOpening = 0;
+    numSubMenusOpened = 0;
+    numSubMenusOpening = 0;
     
     _menuState = kBJRadialMenuStateOpening;
     if([[self delegate] respondsToSelector:@selector(radialMenuIsOpening:)]) {

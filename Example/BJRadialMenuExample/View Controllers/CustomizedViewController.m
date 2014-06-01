@@ -14,6 +14,7 @@
 #define MCANIMATE_SHORTHAND
 #import "POP+MCAnimate.h"
 #import "UIColor+MLPFlatColors.h"
+#import "UIColor+CrossFade.h"
 
 @interface CustomizedViewController ()
 
@@ -30,26 +31,40 @@
     [super viewDidLoad];
     [self setup];
 }
+
 - (void)setup
 {
+    // Setup the menu with numbers
+    self.radialMenu = [[BJRadialMenu alloc] initWithSubMenus:self.radialSubMenus];
+    self.radialMenu.delegate = self;
+    
+    // All of these are configurable by shaking the device
+    FBTweakBind(self.radialMenu, minAngle, @"customizedView", @"radialMenu", @"minAngle", 180);
+    FBTweakBind(self.radialMenu, maxAngle, @"customizedView", @"radialMenu", @"maxAngle", 540);
+    FBTweakBind(self.radialMenu, openDelayStep, @"customizedView", @"radialMenu", @"openDelayStep", 0.035);
+    FBTweakBind(self.radialMenu, closeDelayStep, @"customizedView", @"radialMenu", @"closeDelayStep", 0.025);
+    FBTweakBind(self.radialMenu, selectedDelay, @"customizedView", @"radialMenu", @"selectedDelay", 1.0);
+    FBTweakBind(self.radialMenu, radius, @"customizedView", @"radialMenu", @"openRadius", 100);
+    FBTweakBind(self.radialMenu, radiusStep, @"customizedView", @"radialMenu", @"radiusStep", 0.0);
+    
     // Create long-press gesture and assign to button
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(pressedAddButton:)];
-    FBTweakBind(longPress, minimumPressDuration, @"view2", @"button", @"pressDuration", 0.4);
+    FBTweakBind(longPress, minimumPressDuration, @"customizedView", @"addButton", @"pressDuration", 0.4);
 
-    [self.addButton addGestureRecognizer:longPress];
+    [self.view addGestureRecognizer:longPress];
+//    self.addButton.center = self.view.center;
     
-    self.addButton.center = self.view.center;
-    
-    [self.view addSubview:self.addButton];
+//    [self.view addSubview:self.addButton];
     [self.view addSubview:self.radialMenu];
 }
+
 
 // Handle long press gesture & feed info to submenu
 - (void)pressedAddButton:(UILongPressGestureRecognizer *)gesture
 {
     switch(gesture.state) {
         case UIGestureRecognizerStateBegan:
-            [self.radialMenu openAtPosition:_addButton.center];
+            [self.radialMenu openAtPosition:[gesture locationInView:self.view]];
             break;
         case UIGestureRecognizerStateChanged:
             [self.radialMenu moveAtPosition:[gesture locationInView:self.view]];
@@ -65,11 +80,11 @@
 - (NSArray *)radialSubMenus
 {
     if (_radialSubMenus == nil) {
-        NSUInteger numMenuItems = FBTweakValue(@"menu2", @"submenu", @"count", 25);
+        NSUInteger numMenuItems = FBTweakValue(@"customizedView", @"submenu", @"count", 10);
         
         NSMutableArray *items = [NSMutableArray array];
         for (int i = 1; i <= numMenuItems; i++) {
-            [items addObject:[self createRadialSubMenu]];
+            [items addObject:[self createRadialSubMenuWithIndex:i outOf:numMenuItems]];
         }
         
         _radialSubMenus = items;
@@ -78,32 +93,18 @@
     return _radialSubMenus;
 }
 
-- (BJRadialMenu *)radialMenu
+- (BJRadialSubMenu *)createRadialSubMenuWithIndex:(NSUInteger)index outOf:(NSUInteger)max
 {
-    if (_radialMenu == nil) {
-        _radialMenu = [[BJRadialMenu alloc] initWithSubMenus:self.radialSubMenus];
-        _radialMenu.delegate = self;
-        
-        // All of these are configurable by shaking the device
-        FBTweakBind(_radialMenu, minAngle, @"menu2", @"angle", @"min", 180);
-        FBTweakBind(_radialMenu, maxAngle, @"menu2", @"angle", @"max", 540);
-        FBTweakBind(_radialMenu, openDelayStep, @"menu2", @"open", @"delayStep", 0.035);
-        FBTweakBind(_radialMenu, closeDelayStep, @"menu2", @"close", @"delayStep", 0.025);
-        FBTweakBind(_radialMenu, selectedDelay, @"menu2", @"selected", @"delay", 2.5);
-        FBTweakBind(_radialMenu, radius, @"menu2", @"submenu", @"radius", 100);
-        FBTweakBind(_radialMenu, radiusStep, @"menu2", @"open", @"radiusStep", 0.25);
-    }
     
-    return _radialMenu;
+    CGFloat ratio = index / (CGFloat)max;
     
-}
-- (BJRadialSubMenu *)createRadialSubMenu
-{
-    NSUInteger radius = FBTweakValue(@"menu2", @"submenu", @"size", 15);
+    UIColor *crossFade = [UIColor colorForFadeBetweenFirstColor:[UIColor flatOrangeColor] secondColor:[UIColor flatRedColor] atRatio:ratio];
+
+    NSUInteger radius = FBTweakValue(@"customizedView", @"submenu", @"size", 30);
     NSInteger diameter = radius * 2;
     
     BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] init];
-    subMenu.layer.backgroundColor = [UIColor randomFlatDarkColor].CGColor;
+    subMenu.layer.backgroundColor = crossFade.CGColor;
     subMenu.layer.frame = CGRectMake(0, 0, diameter, diameter);
     subMenu.layer.cornerRadius = radius;
     return subMenu;
@@ -112,12 +113,12 @@
 // Button to display menu
 - (UIButton *)addButton
 {
-    NSUInteger radius = FBTweakValue(@"view2", @"button", @"size", 30);
-    NSUInteger borderWidth = FBTweakValue(@"view2", @"button", @"borderWidth", 2);
+    NSUInteger radius = FBTweakValue(@"customizedView", @"addButton", @"buttonRadius", 30);
+    NSUInteger borderWidth = FBTweakValue(@"customizedView", @"addButton", @"borderWidth", 2);
     
     if (!_addButton) {
         NSLog(@"creating add button");
-        float edgeMultiplier = FBTweakValue(@"view2", @"button", @"edgeMultiplier", 0.5);
+        float edgeMultiplier = FBTweakValue(@"customizedView", @"addButton", @"edgeMultiplier", 0.5);
         float edgeAmount = radius * edgeMultiplier;
         
         UIImage *addImage = [UIImage imageNamed:@"plus"];
@@ -126,60 +127,58 @@
         _addButton.layer.borderWidth = borderWidth;
         _addButton.layer.borderColor = [UIColor darkGrayColor].CGColor;
         _addButton.layer.cornerRadius = radius;
-        _addButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin |  UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
         _addButton.bounds = CGRectMake(0, 0, radius*2, radius*2);
         _addButton.layer.zPosition = 1.0;
+        _addButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin |  UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
         [_addButton setImage:addImage forState:UIControlStateNormal];
         [_addButton setImageEdgeInsets:UIEdgeInsetsMake(edgeAmount, edgeAmount, edgeAmount, edgeAmount)];
         
-        
+ 
         return _addButton;
     }
     
     return _addButton;
 }
 
-- (void)radialMenuHasOpened
+- (void)resetLayer:(CALayer *)layer
 {
-    NSLog(@"Radial menu open");
+    layer.spring.scaleXY = CGPointMake(1.0, 1.0);
 }
 
-- (void)radialMenuHasClosed
+#pragma mark - Delegate callbacks
+
+- (void)radialMenuIsOpening:(BJRadialMenu *)menu
+{
+}
+
+- (void)radialMenuIsClosing:(BJRadialMenu *)menu
+{
+}
+
+- (void)radialMenuHasOpened:(BJRadialMenu *)menu
+{
+}
+
+- (void)radialMenuHasClosed:(BJRadialMenu *)menu
 {
     for (BJRadialSubMenu *subMenu in self.radialMenu.subMenus) {
         [self resetLayer:subMenu.layer];
     }
 }
 
-- (void)resetLayer:(CALayer *)layer
+- (void)radialMenuHasHighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
-    layer.spring.scaleXY = CGPointMake(1.0, 1.0);
-    layer.backgroundColor = [UIColor randomFlatDarkColor].CGColor;
-}
-
-- (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu
-{
-    NSLog(@"Selected subMenu = %@", [self.radialSubMenus objectAtIndex:subMenu.tag]);
-}
-
-- (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu
-{
-    NSLog(@"Highlighting");
-    
-    CGFloat scale = FBTweakValue(@"menu2", @"submenu", @"scale", 2.5, 0, 10);
+    CGFloat scale = FBTweakValue(@"customizedView", @"submenu", @"highlightScale", 1.5, 0, 10);
     subMenu.layer.spring.scaleXY = CGPointMake(scale, scale);
 }
 
-- (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu
+- (void)radialMenuHasUnhighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
-    NSLog(@"Unhighlighting");
-    [self resetLayer:subMenu.layer];
+    subMenu.layer.spring.scaleXY = CGPointMake(1.0, 1.0);
 }
 
-- (void)didReceiveMemoryWarning
+- (void)radialMenuHasSelected:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end

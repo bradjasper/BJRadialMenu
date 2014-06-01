@@ -30,9 +30,14 @@
 
 // Menu type is determined automatically by the angle spread (maxAngle-minAngle)
 // It's so when a full 360 degree circle is used, the first and last items don't overlap
-typedef NS_ENUM(NSUInteger, BJRadialMenuType) {
-    kBJRadialMenuTypeFullCircle,
-    kBJRadialMenuTypeSemiCircle
+typedef NS_ENUM(NSUInteger, BJRadialMenuCircleType) {
+    kBJRadialMenuCircleFullType,
+    kBJRadialMenuCircleSemiType
+};
+
+typedef NS_ENUM(NSUInteger, BJRadialMenuHighlightType) {
+    kBJRadialMenuHighlightOneType,
+    kBJRadialMenuHighlightManyType,
 };
 
 typedef NS_ENUM(NSUInteger, BJRadialMenuState) {
@@ -51,6 +56,7 @@ typedef NS_ENUM(NSUInteger, BJRadialMenuState) {
 
 @property (nonatomic, readonly) NSArray *subMenus;
 @property (nonatomic) BJRadialMenuState menuState;
+@property (nonatomic) BJRadialMenuHighlightType highlightType;
 @property (nonatomic) CGFloat radiusStep;
 @property (nonatomic) CGFloat openDelayStep;
 @property (nonatomic) CGFloat closeDelayStep;
