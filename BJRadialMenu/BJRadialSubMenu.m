@@ -11,7 +11,6 @@
 @interface BJRadialSubMenu () {
     CGPoint origPosition;
     CGRect  origBounds;
-    CGFloat origCornerRadius;
     
     CGFloat openDelay;
     CGFloat closeDelay;
@@ -79,7 +78,6 @@
     
     origPosition = self.center;
     origBounds = self.bounds;
-    origCornerRadius = self.layer.cornerRadius;
     
     currPosition = self.center;
     

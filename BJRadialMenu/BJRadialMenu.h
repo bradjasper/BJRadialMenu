@@ -50,7 +50,9 @@ typedef NS_ENUM(NSUInteger, BJRadialMenuState) {
     NSUInteger activeSubMenuIndex;
 }
 
+@property (nonatomic, readonly) NSArray *subMenus;
 @property (nonatomic) BJRadialMenuState menuState;
+@property (nonatomic) CGFloat radiusStep;
 @property (nonatomic) CGFloat openDelayStep;
 @property (nonatomic) CGFloat closeDelayStep;
 @property (nonatomic) CGFloat selectedDelay;

@@ -9,7 +9,7 @@
 #import "BJRadialMenu.h"
 
 @interface BJRadialMenu ()
-@property (nonatomic) NSArray *subMenus;
+// TODO: Move to non-property
 @property (nonatomic) NSUInteger numMenusOpening;
 @property (nonatomic) NSUInteger numMenusOpened;
 @end
@@ -81,6 +81,7 @@
     _menuState = kBJRadialMenuStateClosed;
     _numMenusOpened = 0;
     _numMenusOpening = 0;
+    _radiusStep = 0.0;
     _openDelayStep = 0.055;
     _closeDelayStep = 0.045;
     _selectedDelay = 1;
@@ -153,6 +154,7 @@
         return;
     }
     
+    /*
     // Check if we moved off active sub menu
     if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) {
         BJRadialSubMenu *subMenu = [_subMenus objectAtIndex:activeSubMenuIndex];
@@ -162,21 +164,26 @@
         }
         return;
     }
+     */
     
-    if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) return;
+//    if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) return;
     
     // Otherwise figure out where we are
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
-        if (activeSubMenuIndex == idx) return;
         
-        if ([subMenu isHighlightedAtPosition:aPosition]) {
-            
-            if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) {
+        BOOL isHighlighted = [subMenu isHighlightedAtPosition:aPosition];
+        
+        if (subMenu.menuState == kBJRadialSubMenuStateHighlighted) {
+            if (!isHighlighted) {
                 [self unhiglightRadialSubMenu:subMenu];
             }
-            
-            [self higlightRadialSubMenu:subMenu];
+        } else {
+            if (isHighlighted) {
+                [self higlightRadialSubMenu:subMenu];
+            }
         }
+        
+        
     }];
 }
 
@@ -200,11 +207,13 @@
         max--;
     }
     
+    CGFloat absRadius = _radius + (_radiusStep * idx);
+    
     CGPoint relPos = [BJRadialUtilities getPointAlongCircleForItem:idx
                                                              outOf:max
                                                            between:_minAngle
                                                                and:_maxAngle
-                                                        withRadius:_radius];
+                                                        withRadius:absRadius];
     
     return CGPointMake(position.x + relPos.x, position.y + relPos.y);
 }
