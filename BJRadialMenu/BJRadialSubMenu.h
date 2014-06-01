@@ -68,11 +68,11 @@ typedef NS_ENUM(NSUInteger, BJRadialSubMenuState) {
 - (void)selectWithDelay:(CGFloat)delay;
 
 
-// Open/close animations aren't really meant to be subclassed, but technically you can, just be sure to
-// 1. Set the delegate to self
-// 2. Account for open/close delay
-// 3. Assign "open"/"close" names
-- (POPAnimation *)openAnimation;
-- (POPAnimation *)closeAnimation;
+// You can subclass move animations, just make sure you do the following:
+// 1. Set the delegate to self (events like opened/closed are determined by when an animation finishes)
+// 2. Account for open/close delays & durations
+// 3. Assign kBJRadialSubMenuOpenMoveAnimation & kBJRadialSubMenuCloseMoveAnimation names accordingly
+- (POPAnimation *)moveOpenAnimation;
+- (POPAnimation *)moveCloseAnimation;
 
 @end

@@ -8,11 +8,15 @@
 
 #import "BJRadialSubMenu.h"
 
+#pragma mark - Static definitions
+
 NSString * const kBJRadialSubMenuOpenMoveAnimation = @"kBJRadialSubMenuOpenMoveAnimation";
 NSString * const kBJRadialSubMenuCloseMoveAnimation = @"kBJRadialSubMenuCloseMoveAnimation";
 NSString * const kBJRadialSubMenuOpenAlphaAnimation = @"kBJRadialSubMenuOpenAlphaAnimation";
 NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAlphaAnimation";
 
+
+#pragma mark - Private interface
 
 @interface BJRadialSubMenu () {
     CGPoint origPosition;
@@ -103,16 +107,21 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 
 - (void)openToPosition:(CGPoint)toPosition basePosition:(CGPoint)basePosition withDelay:(CGFloat)delay;
 {
+    [self opening];
+    
+    // Update new start & end positions.
+    // For static menu's (like coming from a button) these values don't usually change
+    // But for dyanmic menu's (like coming from your finger), these change every time
     currPosition = toPosition;
     origPosition = basePosition;
     
+    // Menu should be hidden at this point, so move to new center
+    // Might need to find a better way to handle this...
     self.center = origPosition;
     
     openDelay = delay;
     
-    [self opening];
-    [self fadeInWithDelay:openDelay];
-    [self openAnimation];
+    [self moveOpenAnimation];
 }
 
 - (void)openToPosition:(CGPoint)toPosition basePosition:(CGPoint)basePosition;
@@ -125,16 +134,14 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     [self closeWithDelay:0.0];
 }
 
-- (BOOL)isHighlightedAtPosition:(CGPoint)aPosition
-{
-    return CGRectContainsPoint(self.frame, aPosition);
-}
-
 - (void)closeWithDelay:(CGFloat)delay
 {
-    closeDelay = delay;
     [self closing];
-    [self closeAnimation];
+    
+    closeDelay = delay;
+    
+    // Alpha fade out will happen once animation begins (see animationDidAppear delegate)
+    [self moveCloseAnimation];
 }
 
 - (void)selectWithDelay:(CGFloat)delay
@@ -162,12 +169,19 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     [self unhighlighting];
 }
 
+- (BOOL)isHighlightedAtPosition:(CGPoint)aPosition
+{
+    return CGRectContainsPoint(self.frame, aPosition);
+}
+
 #pragma mark - Animation Delegates
 
 - (void)pop_animationDidStart:(POPAnimation *)anim
 {
-    // Start fade as soon as movement starts for close
-    if ([anim.name isEqualToString:kBJRadialSubMenuCloseMoveAnimation]) {
+    // Start fade as soon as movement starts for open or close
+    if ([anim.name isEqualToString:kBJRadialSubMenuOpenMoveAnimation]) {
+        [self fadeInWithDelay:0.0];
+    } else if ([anim.name isEqualToString:kBJRadialSubMenuCloseMoveAnimation]) {
         [self fadeOutWithDelay:0.0];
     }
 }
@@ -178,15 +192,17 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
         return;
     }
     
+    // Open or close animations have finished. If that's all there is to do
+    // send event back. Otherwise if action has changed, immediately start the next one
     if ([anim.name isEqualToString:kBJRadialSubMenuOpenMoveAnimation]) {
         if (_menuState == kBJRadialSubMenuStateOpening) {
             [self opened];
         } else if (_menuState == kBJRadialSubMenuStateClosing) {
-            [self closeAnimation];
+            [self moveCloseAnimation];
         }
     } else if ([anim.name isEqualToString:kBJRadialSubMenuCloseMoveAnimation]) {
         if (_menuState == kBJRadialSubMenuStateOpening) {
-            [self openAnimation];
+            [self moveOpenAnimation];
         } else if (_menuState == kBJRadialSubMenuStateClosing) {
             [self closed];
         }
@@ -195,48 +211,46 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 
 #pragma mark - Animations
 
-- (POPAnimation *)openAnimation
+- (POPAnimation *)moveOpenAnimation
 {
-    
-    CFTimeInterval absDelay = CACurrentMediaTime() + openDelay;
-    
     POPSpringAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuOpenMoveAnimation];
-    
     
     if (anim == NULL)
     {
         anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
         anim.name = kBJRadialSubMenuOpenMoveAnimation;
-        anim.beginTime = absDelay;
-        anim.toValue = [NSValue valueWithCGPoint:currPosition];
         anim.springSpeed = _openSpringSpeed;
         anim.springBounciness = _openSpringBounciness;
         anim.delegate = self;
-        
+        anim.beginTime = CACurrentMediaTime() + openDelay;
+        anim.toValue = [NSValue valueWithCGPoint:currPosition];
         [self pop_addAnimation:anim forKey:kBJRadialSubMenuOpenMoveAnimation];
     }
+    
+    // We don't update the animation here since we always want it to finish
+    // In the animationDidFinish delegate we open/close based on the latest action
     
     return anim;
 }
 
 
-- (POPAnimation *)closeAnimation
+- (POPAnimation *)moveCloseAnimation
 {
     POPBasicAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuCloseMoveAnimation];
     
-    CFTimeInterval absDelay = CACurrentMediaTime() + closeDelay;
-    
     if (anim == NULL) {
         anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewCenter];
-        anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
         anim.name = kBJRadialSubMenuCloseMoveAnimation;
-        anim.beginTime = absDelay;
-        anim.toValue = [NSValue valueWithCGPoint:origPosition];
+        anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim.beginTime = CACurrentMediaTime() + closeDelay;
         anim.duration = closeDuration;
         anim.delegate = self;
-        
+        anim.toValue = [NSValue valueWithCGPoint:origPosition];
         [self pop_addAnimation:anim forKey:kBJRadialSubMenuCloseMoveAnimation];
     }
+    
+    // We don't update the animation here since we always want it to finish
+    // In the animationDidFinish delegate we open/close based on the latest action
     
     return anim;
 }
@@ -244,7 +258,6 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 - (POPAnimation *)fadeOutWithDelay:(CGFloat)delay
 {
     
-    CFTimeInterval absDelay = CACurrentMediaTime() + delay;
     POPBasicAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuCloseAlphaAnimation];
     
     if (anim == NULL) {
@@ -253,7 +266,7 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
         anim.name = kBJRadialSubMenuCloseAlphaAnimation;
         anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
         anim.duration = closeDuration;
-        anim.beginTime = absDelay;
+        anim.beginTime = CACurrentMediaTime() + delay;
         anim.toValue = @(0.0);
         
         [self pop_addAnimation:anim forKey:kBJRadialSubMenuCloseAlphaAnimation];
@@ -273,10 +286,10 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     if (anim == NULL) {
         anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewAlpha];
         anim.name = kBJRadialSubMenuOpenAlphaAnimation;
-        anim.toValue = @(1.0);
-        anim.springSpeed =
+        anim.springSpeed = _openSpringSpeed;
+        anim.springBounciness = _openSpringBounciness;
         anim.beginTime = absDelay;
-        //anim.duration = openDuration;
+        anim.toValue = @(1.0);
         [self pop_addAnimation:anim forKey:kBJRadialSubMenuOpenAlphaAnimation];
     } else {
         anim.toValue = @(1.0);
@@ -285,11 +298,11 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     return anim;
 }
 
-#pragma mark - States
+#pragma mark - SubMenu states
 
 - (void)closed
 {
-    // When we close, make sure to remove open animations incase any haven't triggered yet
+    // When we close, make sure to remove open animations that haven't started yet (race condition with many many elements)
     [self pop_removeAnimationForKey:kBJRadialSubMenuOpenMoveAnimation];
     [self pop_removeAnimationForKey:kBJRadialSubMenuOpenAlphaAnimation];
     
@@ -303,7 +316,6 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 - (void)opening
 {
     _menuState = kBJRadialSubMenuStateOpening;
-    
 }
 
 - (void)opened
@@ -358,4 +370,5 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 {
     _menuState = kBJRadialSubMenuStateClosing;
 }
+
 @end

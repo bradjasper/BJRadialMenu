@@ -10,8 +10,8 @@
 
 @interface BJRadialMenu ()
 // TODO: Move to non-property
-@property (nonatomic) NSUInteger numMenusOpening;
-@property (nonatomic) NSUInteger numMenusOpened;
+@property (nonatomic) NSUInteger numSubMenusOpening;
+@property (nonatomic) NSUInteger numSubMenusOpened;
 @end
 
 @implementation BJRadialMenu
@@ -78,8 +78,8 @@
 {
     position = CGPointZero;
     _menuState = kBJRadialMenuStateClosed;
-    _numMenusOpened = 0;
-    _numMenusOpening = 0;
+    _numSubMenusOpened = 0;
+    _numSubMenusOpening = 0;
     _radiusStep = 0.0;
     _openDelayStep = 0.045;
     _closeDelayStep = 0.035;
@@ -116,7 +116,8 @@
                                                                 outOf:numSubMenus
                                                           andMenuType:menuType];
         CGFloat delay = _openDelayStep * (idx + 1);
-        _numMenusOpening++;
+        
+        _numSubMenusOpening++;
         [self openRadialSubMenu:subMenu atPosition:absPos withDelay:delay];
     }];
 }
@@ -151,7 +152,6 @@
         return;
     }
     
-    // Otherwise figure out where we are
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
         
         BOOL isHighlighted = [subMenu isHighlightedAtPosition:aPosition];
@@ -184,8 +184,7 @@
 
 - (CGPoint)getAbsolutePositionForSubMenuWithIndex:(NSUInteger)idx outOf:(NSUInteger)max andMenuType:(BJRadialMenuType)menuType
 {
-    // If it's a full circle we don't want the edges to overlap
-    // but if it's a semicircle, we do
+    // If it's a full circle we don't want the edges to overlap, but if it's a semicircle, we do
     if (menuType == kBJRadialMenuTypeSemiCircle) {
         max--;
     }
@@ -232,14 +231,14 @@
 
 - (void)radialSubMenuHasOpened:(BJRadialSubMenu *)subMenu
 {
-    if (++_numMenusOpened == [_subMenus count]) {
+    if (++_numSubMenusOpened == [_subMenus count]) {
         [self opened];
     }
 }
 
 - (void)radialSubMenuHasClosed:(BJRadialSubMenu *)subMenu
 {
-    if (--_numMenusOpening == 0) {
+    if (--_numSubMenusOpening == 0) {
         [self closed];
     }
 }
@@ -261,62 +260,63 @@
 
 # pragma mark - States
 
-- (void)opened
-{
-    _menuState = kBJRadialMenuStateOpened;
-    if([[self delegate] respondsToSelector:@selector(radialMenuHasOpened)]) {
-        [[self delegate] radialMenuHasOpened];
-    }
-}
-
-- (void)closed
-{
-    _menuState = kBJRadialMenuStateClosed;
-    if([[self delegate] respondsToSelector:@selector(radialMenuHasClosed)]) {
-        [[self delegate] radialMenuHasClosed];
-    }
-}
-
-- (void)highlighted:(BJRadialSubMenu *)subMenu
-{
-    _menuState = kBJRadialMenuStateHighlighted;
-    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasHighlighted:)]) {
-        [[self delegate] radialSubMenuHasHighlighted:subMenu];
-    }
-}
-
-- (void)unhighlighted:(BJRadialSubMenu *)subMenu
-{
-    _menuState = kBJRadialMenuStateUnhighlighted;
-    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasUnhighlighted:)]) {
-        [[self delegate] radialSubMenuHasUnhighlighted:subMenu];
-    }
-}
-
-- (void)selected:(BJRadialSubMenu *)subMenu
-{
-    _menuState = kBJRadialMenuStateSelected;
-    if([[self delegate] respondsToSelector:@selector(radialSubMenuHasSelected:)]) {
-        [[self delegate] radialSubMenuHasSelected:subMenu];
-    }
-}
-
 - (void)opening
 {
-    _numMenusOpened = 0;
-    _numMenusOpening = 0;
+    // reset
+    _numSubMenusOpened = 0;
+    _numSubMenusOpening = 0;
     
     _menuState = kBJRadialMenuStateOpening;
-    if([[self delegate] respondsToSelector:@selector(radialMenuIsOpening)]) {
-        [[self delegate] radialMenuIsOpening];
+    if([[self delegate] respondsToSelector:@selector(radialMenuIsOpening:)]) {
+        [[self delegate] radialMenuIsOpening:self];
     }
 }
 
 - (void)closing
 {
     _menuState = kBJRadialMenuStateClosing;
-    if([[self delegate] respondsToSelector:@selector(radialMenuIsClosing)]) {
-        [[self delegate] radialMenuIsClosing];
+    if([[self delegate] respondsToSelector:@selector(radialMenuIsClosing:)]) {
+        [[self delegate] radialMenuIsClosing:self];
+    }
+}
+
+- (void)opened
+{
+    _menuState = kBJRadialMenuStateOpened;
+    if([[self delegate] respondsToSelector:@selector(radialMenuHasOpened:)]) {
+        [[self delegate] radialMenuHasOpened:self];
+    }
+}
+
+- (void)closed
+{
+    _menuState = kBJRadialMenuStateClosed;
+    if([[self delegate] respondsToSelector:@selector(radialMenuHasClosed:)]) {
+        [[self delegate] radialMenuHasClosed:self];
+    }
+}
+
+- (void)highlighted:(BJRadialSubMenu *)subMenu
+{
+    _menuState = kBJRadialMenuStateHighlighted;
+    if([[self delegate] respondsToSelector:@selector(radialMenuHasHighlighted:subMenu:)]) {
+        [[self delegate] radialMenuHasHighlighted:self subMenu:subMenu];
+    }
+}
+
+- (void)unhighlighted:(BJRadialSubMenu *)subMenu
+{
+    _menuState = kBJRadialMenuStateUnhighlighted;
+    if([[self delegate] respondsToSelector:@selector(radialMenuHasUnhighlighted:subMenu:)]) {
+        [[self delegate] radialMenuHasUnhighlighted:self subMenu:subMenu];
+    }
+}
+
+- (void)selected:(BJRadialSubMenu *)subMenu
+{
+    _menuState = kBJRadialMenuStateSelected;
+    if([[self delegate] respondsToSelector:@selector(radialMenuHasSelected:subMenu:)]) {
+        [[self delegate] radialMenuHasSelected:self subMenu:subMenu];
     }
 }
 

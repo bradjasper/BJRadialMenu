@@ -17,22 +17,24 @@
 @class BJRadialMenu;
 @protocol BJRadialMenuDelegate <NSObject>
 @optional
-- (void)radialMenuHasOpened;
-- (void)radialMenuHasClosed;
-- (void)radialMenuIsOpening;
-- (void)radialMenuIsClosing;
-- (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu;
-- (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu;
-- (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu;
+- (void)radialMenuIsOpening:(BJRadialMenu *)menu;
+- (void)radialMenuIsClosing:(BJRadialMenu *)menu;
+- (void)radialMenuHasOpened:(BJRadialMenu *)menu;
+- (void)radialMenuHasClosed:(BJRadialMenu *)menu;
+- (void)radialMenuHasHighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu;
+- (void)radialMenuHasUnhighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu;
+- (void)radialMenuHasSelected:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu;
 @end
 
 #pragma mark - BJRadialMenu definition
 
+// Menu type is determined automatically by the angle spread (maxAngle-minAngle)
+// It's so when a full 360 degree circle is used, the first and last items don't overlap
 typedef NS_ENUM(NSUInteger, BJRadialMenuType) {
     kBJRadialMenuTypeFullCircle,
     kBJRadialMenuTypeSemiCircle
 };
-    
+
 typedef NS_ENUM(NSUInteger, BJRadialMenuState) {
     kBJRadialMenuStateClosed,
     kBJRadialMenuStateClosing,

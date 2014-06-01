@@ -32,8 +32,8 @@
 - (void)setup
 {
     
-    self.infoLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, self.view.frame.size.width, 50)];
-    self.infoLabel.textAlignment = NSTextAlignmentCenter;
+    self.infoLabel = [[UILabel alloc] initWithFrame:CGRectMake(8, 5, self.view.frame.size.width, 50)];
+    self.infoLabel.font = [self.infoLabel.font fontWithSize:8.0];
     [self updateInfoLabel:@"Closed"];
     [self.view addSubview:self.infoLabel];
     
@@ -115,9 +115,11 @@
         _addButton.layer.cornerRadius = radius;
         _addButton.bounds = CGRectMake(0, 0, radius*2, radius*2);
         _addButton.layer.zPosition = 1.0;
+        _addButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin |  UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
         [_addButton setImage:addImage forState:UIControlStateNormal];
         [_addButton setImageEdgeInsets:UIEdgeInsetsMake(edgeAmount, edgeAmount, edgeAmount, edgeAmount)];
         
+ 
         
         return _addButton;
     }
@@ -130,38 +132,38 @@
     self.infoLabel.text = [NSString stringWithFormat:@"state = %@", state];
 }
 
-- (void)radialMenuIsOpening
+- (void)radialMenuIsOpening:(BJRadialMenu *)menu
 {
     [self updateInfoLabel:@"Opening"];
 }
 
-- (void)radialMenuIsClosing
+- (void)radialMenuIsClosing:(BJRadialMenu *)menu
 {
     [self updateInfoLabel:@"Closing"];
 }
 
-- (void)radialMenuHasOpened
+- (void)radialMenuHasOpened:(BJRadialMenu *)menu
 {
     [self updateInfoLabel:@"Opened"];
 }
 
-- (void)radialMenuHasClosed
+- (void)radialMenuHasClosed:(BJRadialMenu *)menu
 {
     [self updateInfoLabel:@"Closed"];
 }
 
-- (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu
+- (void)radialMenuHasHighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
     NSString *item = self.menuItems[subMenu.tag];
     [self updateInfoLabel:[NSString stringWithFormat:@"Highlighted '%@'", item]];
 }
 
-- (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu
+- (void)radialMenuHasUnhighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
     [self updateInfoLabel:@"Opened"];
 }
 
-- (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu
+- (void)radialMenuHasSelected:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
     NSString *item = self.menuItems[subMenu.tag];
     [self updateInfoLabel:[NSString stringWithFormat:@"Selected '%@'", item]];
