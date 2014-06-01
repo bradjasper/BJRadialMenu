@@ -14,7 +14,7 @@
     
 }
 
-@property (nonatomic) NSMutableArray *highlightedSubMenus;
+@property (nonatomic) BJRadialSubMenu *higlightedSubMenu;
 
 @end
 
@@ -82,7 +82,6 @@
 {
     position = CGPointZero;
     _menuState = kBJRadialMenuStateClosed;
-    _highlightType = kBJRadialMenuHighlightOneType;
     numSubMenusOpened = 0;
     numSubMenusOpening = 0;
     _radiusStep = 0.0;
@@ -92,7 +91,8 @@
     _minAngle = 195;
     _maxAngle = 345;
     _radius = 100;
-    _highlightedSubMenus =  [NSMutableArray array];
+    _higlightedSubMenu = nil;
+    _allowMultipleHighlights = NO;
 }
 
 #pragma mark - Actions
@@ -113,14 +113,11 @@
     
     position = aPosition;
     
-    BJRadialMenuCircleType menuType = [self menuTypeFromCurrentAngles];
     NSUInteger numSubMenus = [_subMenus count];
+    BOOL isFullCircle = [self isFullCircle];
     
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
-        
-        CGPoint absPos = [self getAbsolutePositionForSubMenuWithIndex:idx
-                                                                outOf:numSubMenus
-                                                          andMenuType:menuType];
+        CGPoint absPos = [self getAbsolutePositionForSubMenuAlongCircleWithIndex:idx outOf:numSubMenus fullCircle:isFullCircle];
         CGFloat delay = _openDelayStep * (idx + 1);
         
         numSubMenusOpening++;
@@ -178,20 +175,16 @@
 
 #pragma mark - SubMenu helpers
 
-- (BJRadialMenuCircleType)menuTypeFromCurrentAngles
+- (BOOL)isFullCircle
 {
-    float angleDiff = _maxAngle - _minAngle;
-    if (angleDiff == 360.0) {
-        return kBJRadialMenuCircleFullType;
-    }
-    
-    return kBJRadialMenuCircleSemiType;
+    // TODO: Make more flexible
+    return (_maxAngle - _minAngle) == 360.0;
 }
 
-- (CGPoint)getAbsolutePositionForSubMenuWithIndex:(NSUInteger)idx outOf:(NSUInteger)max andMenuType:(BJRadialMenuCircleType)menuType
+- (CGPoint)getAbsolutePositionForSubMenuAlongCircleWithIndex:(NSUInteger)idx outOf:(NSUInteger)max fullCircle:(BOOL)fullCircle
 {
     // If it's a full circle we don't want the edges to overlap, but if it's a semicircle, we do
-    if (menuType == kBJRadialMenuCircleSemiType) {
+    if (!fullCircle) {
         max--;
     }
     
@@ -251,13 +244,22 @@
 
 - (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu
 {
-    [self.highlightedSubMenus addObject:subMenu];
+    if (_allowMultipleHighlights == NO &&
+        self.higlightedSubMenu != nil &&
+        [self.higlightedSubMenu isEqual:subMenu] == NO) {
+        [self unhiglightRadialSubMenu:self.higlightedSubMenu];
+    }
+    
+    self.higlightedSubMenu = subMenu;
     [self highlighted:subMenu];
 }
 
 - (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu
 {
-    [self.highlightedSubMenus removeObject:subMenu];
+    if ([self.higlightedSubMenu isEqual:subMenu]) {
+        self.higlightedSubMenu = nil;
+    }
+    
     [self unhighlighted:subMenu];
 }
 

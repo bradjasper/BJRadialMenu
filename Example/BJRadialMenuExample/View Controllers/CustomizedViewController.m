@@ -19,6 +19,7 @@
 @interface CustomizedViewController ()
 
 @property (nonatomic) NSArray *radialSubMenus;
+@property (nonatomic) NSArray *colorSteps;
 @property (nonatomic) UIButton *addButton;
 @property (nonatomic) BJRadialMenu *radialMenu;
 
@@ -46,6 +47,7 @@
     FBTweakBind(self.radialMenu, selectedDelay, @"customizedView", @"radialMenu", @"selectedDelay", 1.0);
     FBTweakBind(self.radialMenu, radius, @"customizedView", @"radialMenu", @"openRadius", 100);
     FBTweakBind(self.radialMenu, radiusStep, @"customizedView", @"radialMenu", @"radiusStep", 0.0);
+    FBTweakBind(self.radialMenu, allowMultipleHighlights, @"customizedView", @"radialMenu", @"multipleHighlights", NO);
     
     // Create long-press gesture and assign to button
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(pressedAddButton:)];
@@ -80,11 +82,17 @@
 - (NSArray *)radialSubMenus
 {
     if (_radialSubMenus == nil) {
+        
         NSUInteger numMenuItems = FBTweakValue(@"customizedView", @"submenu", @"count", 10);
         
+        UIColor *startColor = [UIColor flatRedColor];
+        UIColor *endColor = [UIColor flatOrangeColor];
+        
+        self.colorSteps = [UIColor colorsForFadeBetweenFirstColor:startColor lastColor:endColor inSteps:numMenuItems];
+        
         NSMutableArray *items = [NSMutableArray array];
-        for (int i = 1; i <= numMenuItems; i++) {
-            [items addObject:[self createRadialSubMenuWithIndex:i outOf:numMenuItems]];
+        for (int i = 0; i < numMenuItems; i++) {
+            [items addObject:[self createRadialSubMenuWithIndex:i]];
         }
         
         _radialSubMenus = items;
@@ -93,18 +101,14 @@
     return _radialSubMenus;
 }
 
-- (BJRadialSubMenu *)createRadialSubMenuWithIndex:(NSUInteger)index outOf:(NSUInteger)max
+- (BJRadialSubMenu *)createRadialSubMenuWithIndex:(NSUInteger)index
 {
-    
-    CGFloat ratio = index / (CGFloat)max;
-    
-    UIColor *crossFade = [UIColor colorForFadeBetweenFirstColor:[UIColor flatOrangeColor] secondColor:[UIColor flatRedColor] atRatio:ratio];
-
     NSUInteger radius = FBTweakValue(@"customizedView", @"submenu", @"size", 30);
     NSInteger diameter = radius * 2;
+    UIColor *color = [self.colorSteps objectAtIndex:index];
     
     BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] init];
-    subMenu.layer.backgroundColor = crossFade.CGColor;
+    subMenu.layer.backgroundColor = color.CGColor;
     subMenu.layer.frame = CGRectMake(0, 0, diameter, diameter);
     subMenu.layer.cornerRadius = radius;
     return subMenu;
@@ -170,15 +174,48 @@
 {
     CGFloat scale = FBTweakValue(@"customizedView", @"submenu", @"highlightScale", 1.5, 0, 10);
     subMenu.layer.spring.scaleXY = CGPointMake(scale, scale);
+    
+    POPSpringAnimation *higlight = [subMenu.layer pop_animationForKey:@"highlight"];
+    if (higlight == nil) {
+        higlight = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerBackgroundColor];
+        higlight.toValue = [UIColor flatRedColor];
+        [subMenu.layer pop_addAnimation:higlight forKey:@"highlight"];
+    } else {
+        higlight.toValue = [UIColor flatRedColor];
+    }
 }
 
 - (void)radialMenuHasUnhighlighted:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
     subMenu.layer.spring.scaleXY = CGPointMake(1.0, 1.0);
+    
+    NSUInteger idx = [self.radialSubMenus indexOfObject:subMenu];
+    UIColor *color = self.colorSteps[idx];
+    
+    POPSpringAnimation *higlight = [subMenu.layer pop_animationForKey:@"highlight"];
+    if (higlight == nil) {
+        higlight = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerBackgroundColor];
+        higlight.toValue = color;
+        [subMenu.layer pop_addAnimation:higlight forKey:@"highlight"];
+    } else {
+        higlight.toValue = color;
+    }
 }
 
 - (void)radialMenuHasSelected:(BJRadialMenu *)menu subMenu:(BJRadialSubMenu *)subMenu
 {
+    
+    NSUInteger idx = [self.radialSubMenus indexOfObject:subMenu];
+    UIColor *color = self.colorSteps[idx];
+    
+    POPSpringAnimation *higlight = [subMenu.layer pop_animationForKey:@"highlight"];
+    if (higlight == nil) {
+        higlight = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerBackgroundColor];
+        higlight.toValue = color;
+        [subMenu.layer pop_addAnimation:higlight forKey:@"highlight"];
+    } else {
+        higlight.toValue = color;
+    }
 }
 
 @end

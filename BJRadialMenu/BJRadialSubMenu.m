@@ -26,6 +26,8 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     
     CGFloat closeDelay;
     CGFloat closeDuration;
+    
+    CGRect currFrame;
 }
 
 @end
@@ -90,6 +92,7 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     origBounds = self.bounds;
     
     currPosition = self.center;
+    currFrame = CGRectNull;
     
     // hide by default (open/close take care of transparency so there are no jumps)
     self.alpha = 0.0;
@@ -171,7 +174,7 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 
 - (BOOL)isHighlightedAtPosition:(CGPoint)aPosition
 {
-    return CGRectContainsPoint(self.frame, aPosition);
+    return CGRectContainsPoint(currFrame, aPosition);
 }
 
 #pragma mark - Animation Delegates
@@ -320,6 +323,8 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 
 - (void)opened
 {
+    currFrame = self.frame;
+    
     _menuState = kBJRadialSubMenuStateOpened;
     if([[self delegate] respondsToSelector:@selector(radialSubMenuHasOpened:)]) {
         [[self delegate] radialSubMenuHasOpened:self];
