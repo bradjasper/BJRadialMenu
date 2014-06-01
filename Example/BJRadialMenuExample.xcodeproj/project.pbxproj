@@ -17,7 +17,7 @@
 		A2D57D27193A4CB5005EDD6F /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A2D57D25193A4CB5005EDD6F /* Main_iPhone.storyboard */; };
 		A2D57D2A193A4CB5005EDD6F /* Main_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A2D57D28193A4CB5005EDD6F /* Main_iPad.storyboard */; };
 		A2D57D2D193A4CB5005EDD6F /* DefaultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A2D57D2C193A4CB5005EDD6F /* DefaultViewController.m */; };
-		A2D57D30193A4CB5005EDD6F /* CustomizedSecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A2D57D2F193A4CB5005EDD6F /* CustomizedSecondViewController.m */; };
+		A2D57D30193A4CB5005EDD6F /* CustomizedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A2D57D2F193A4CB5005EDD6F /* CustomizedViewController.m */; };
 		A2D57D32193A4CB5005EDD6F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2D57D31193A4CB5005EDD6F /* Images.xcassets */; };
 		A2D57D39193A4CB5005EDD6F /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2D57D38193A4CB5005EDD6F /* XCTest.framework */; };
 		A2D57D3A193A4CB5005EDD6F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2D57D13193A4CB5005EDD6F /* Foundation.framework */; };
@@ -56,7 +56,7 @@
 		A2D57D2B193A4CB5005EDD6F /* DefaultViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultViewController.h; sourceTree = "<group>"; };
 		A2D57D2C193A4CB5005EDD6F /* DefaultViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DefaultViewController.m; sourceTree = "<group>"; };
 		A2D57D2E193A4CB5005EDD6F /* CustomizedViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomizedViewController.h; sourceTree = "<group>"; };
-		A2D57D2F193A4CB5005EDD6F /* CustomizedSecondViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomizedSecondViewController.m; sourceTree = "<group>"; };
+		A2D57D2F193A4CB5005EDD6F /* CustomizedViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomizedViewController.m; sourceTree = "<group>"; };
 		A2D57D31193A4CB5005EDD6F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		A2D57D37193A4CB5005EDD6F /* BJRadialMenuExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BJRadialMenuExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2D57D38193A4CB5005EDD6F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -91,13 +91,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A26FF83E193B786800C7D6AC /* App Delegate */ = {
+			isa = PBXGroup;
+			children = (
+				A2D57D22193A4CB5005EDD6F /* AppDelegate.h */,
+				A2D57D23193A4CB5005EDD6F /* AppDelegate.m */,
+			);
+			path = "App Delegate";
+			sourceTree = "<group>";
+		};
+		A26FF83F193B787500C7D6AC /* View Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				A2D57D2B193A4CB5005EDD6F /* DefaultViewController.h */,
+				A2D57D2C193A4CB5005EDD6F /* DefaultViewController.m */,
+				A2D57D2E193A4CB5005EDD6F /* CustomizedViewController.h */,
+				A2D57D2F193A4CB5005EDD6F /* CustomizedViewController.m */,
+				A2B69AD3193B6EDA007AF12E /* ExtremeViewController.h */,
+				A2B69AD4193B6EDA007AF12E /* ExtremeViewController.m */,
+			);
+			path = "View Controllers";
+			sourceTree = "<group>";
+		};
+		A26FF841193B789200C7D6AC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A2D57D31193A4CB5005EDD6F /* Images.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		A2B69AD6193B7285007AF12E /* Storyboards */ = {
 			isa = PBXGroup;
 			children = (
 				A2D57D25193A4CB5005EDD6F /* Main_iPhone.storyboard */,
 				A2D57D28193A4CB5005EDD6F /* Main_iPad.storyboard */,
 			);
-			name = Storyboards;
+			path = Storyboards;
 			sourceTree = "<group>";
 		};
 		A2D57D07193A4CB5005EDD6F = {
@@ -135,16 +165,10 @@
 		A2D57D19193A4CB5005EDD6F /* BJRadialMenuExample */ = {
 			isa = PBXGroup;
 			children = (
-				A2D57D22193A4CB5005EDD6F /* AppDelegate.h */,
-				A2D57D23193A4CB5005EDD6F /* AppDelegate.m */,
-				A2D57D2B193A4CB5005EDD6F /* DefaultViewController.h */,
-				A2D57D2C193A4CB5005EDD6F /* DefaultViewController.m */,
-				A2D57D2E193A4CB5005EDD6F /* CustomizedViewController.h */,
-				A2D57D2F193A4CB5005EDD6F /* CustomizedSecondViewController.m */,
-				A2B69AD3193B6EDA007AF12E /* ExtremeViewController.h */,
-				A2B69AD4193B6EDA007AF12E /* ExtremeViewController.m */,
-				A2D57D31193A4CB5005EDD6F /* Images.xcassets */,
+				A26FF83E193B786800C7D6AC /* App Delegate */,
+				A26FF83F193B787500C7D6AC /* View Controllers */,
 				A2B69AD6193B7285007AF12E /* Storyboards */,
+				A26FF841193B789200C7D6AC /* Resources */,
 				A2D57D1A193A4CB5005EDD6F /* Supporting Files */,
 			);
 			path = BJRadialMenuExample;
@@ -158,7 +182,7 @@
 				A2D57D1F193A4CB5005EDD6F /* main.m */,
 				A2D57D21193A4CB5005EDD6F /* BJRadialMenuExample-Prefix.pch */,
 			);
-			name = "Supporting Files";
+			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		A2D57D3E193A4CB5005EDD6F /* BJRadialMenuExampleTests */ = {
@@ -176,7 +200,7 @@
 				A2D57D40193A4CB5005EDD6F /* BJRadialMenuExampleTests-Info.plist */,
 				A2D57D41193A4CB5005EDD6F /* InfoPlist.strings */,
 			);
-			name = "Supporting Files";
+			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -312,7 +336,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2D57D30193A4CB5005EDD6F /* CustomizedSecondViewController.m in Sources */,
+				A2D57D30193A4CB5005EDD6F /* CustomizedViewController.m in Sources */,
 				A2B69AD5193B6EDA007AF12E /* ExtremeViewController.m in Sources */,
 				A2D57D24193A4CB5005EDD6F /* AppDelegate.m in Sources */,
 				A2D57D2D193A4CB5005EDD6F /* DefaultViewController.m in Sources */,
@@ -453,8 +477,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "BJRadialMenuExample/BJRadialMenuExample-Prefix.pch";
-				INFOPLIST_FILE = "BJRadialMenuExample/BJRadialMenuExample-Info.plist";
+				GCC_PREFIX_HEADER = "BJRadialMenuExample/Supporting Files/BJRadialMenuExample-Prefix.pch";
+				INFOPLIST_FILE = "BJRadialMenuExample/Supporting Files/BJRadialMenuExample-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -467,8 +491,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "BJRadialMenuExample/BJRadialMenuExample-Prefix.pch";
-				INFOPLIST_FILE = "BJRadialMenuExample/BJRadialMenuExample-Info.plist";
+				GCC_PREFIX_HEADER = "BJRadialMenuExample/Supporting Files/BJRadialMenuExample-Prefix.pch";
+				INFOPLIST_FILE = "BJRadialMenuExample/Supporting Files/BJRadialMenuExample-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -484,12 +508,12 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "BJRadialMenuExample/BJRadialMenuExample-Prefix.pch";
+				GCC_PREFIX_HEADER = "BJRadialMenuExample/Supporting Files/BJRadialMenuExample-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "BJRadialMenuExampleTests/BJRadialMenuExampleTests-Info.plist";
+				INFOPLIST_FILE = "BJRadialMenuExampleTests/Supporting Files/BJRadialMenuExampleTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
@@ -506,8 +530,8 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "BJRadialMenuExample/BJRadialMenuExample-Prefix.pch";
-				INFOPLIST_FILE = "BJRadialMenuExampleTests/BJRadialMenuExampleTests-Info.plist";
+				GCC_PREFIX_HEADER = "BJRadialMenuExample/Supporting Files/BJRadialMenuExample-Prefix.pch";
+				INFOPLIST_FILE = "BJRadialMenuExampleTests/Supporting Files/BJRadialMenuExampleTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = xctest;
