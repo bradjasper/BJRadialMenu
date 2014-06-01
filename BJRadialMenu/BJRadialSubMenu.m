@@ -19,8 +19,8 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     CGRect  origBounds;
     
     CGFloat openDelay;
+    
     CGFloat closeDelay;
-    CGFloat openDuration;
     CGFloat closeDuration;
 }
 
@@ -92,8 +92,11 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
     
     openDelay = 0.0;
     closeDelay = 0.0;
-    openDuration = 0.03125;
+    
     closeDuration = 0.125;
+    
+    _openSpringSpeed = 17.0;
+    _openSpringBounciness = 8.0;
 }
 
 #pragma mark - Actions
@@ -195,8 +198,6 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 - (POPAnimation *)openAnimation
 {
     
-    CGFloat openSpringSpeed = 17.0;
-    CGFloat openSpringBounciness = 8.0;
     CFTimeInterval absDelay = CACurrentMediaTime() + openDelay;
     
     POPSpringAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuOpenMoveAnimation];
@@ -208,8 +209,8 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
         anim.name = kBJRadialSubMenuOpenMoveAnimation;
         anim.beginTime = absDelay;
         anim.toValue = [NSValue valueWithCGPoint:currPosition];
-        anim.springSpeed = openSpringSpeed;
-        anim.springBounciness = openSpringBounciness;
+        anim.springSpeed = _openSpringSpeed;
+        anim.springBounciness = _openSpringBounciness;
         anim.delegate = self;
         
         [self pop_addAnimation:anim forKey:kBJRadialSubMenuOpenMoveAnimation];
@@ -267,15 +268,15 @@ NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAl
 {
     
     CFTimeInterval absDelay = CACurrentMediaTime() + delay;
-    POPBasicAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuOpenAlphaAnimation];
+    POPSpringAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuOpenAlphaAnimation];
     
     if (anim == NULL) {
-        anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
-        anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewAlpha];
         anim.name = kBJRadialSubMenuOpenAlphaAnimation;
         anim.toValue = @(1.0);
+        anim.springSpeed =
         anim.beginTime = absDelay;
-        anim.duration = openDuration;
+        //anim.duration = openDuration;
         [self pop_addAnimation:anim forKey:kBJRadialSubMenuOpenAlphaAnimation];
     } else {
         anim.toValue = @(1.0);

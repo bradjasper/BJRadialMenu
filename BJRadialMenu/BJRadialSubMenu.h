@@ -48,6 +48,8 @@ typedef NS_ENUM(NSUInteger, BJRadialSubMenuState) {
 
 @property (weak, nonatomic) id <BJRadialSubMenuDelegate> delegate;
 @property (nonatomic, readonly) BJRadialSubMenuState menuState;
+@property CGFloat openSpringSpeed;
+@property CGFloat openSpringBounciness;
 
 - (id)initWithView:(UIView *)aView;
 - (id)initWithLayer:(CALayer *)layer;
