@@ -120,7 +120,6 @@
         [_addButton setImageEdgeInsets:UIEdgeInsetsMake(edgeAmount, edgeAmount, edgeAmount, edgeAmount)];
         
  
-        
         return _addButton;
     }
     

@@ -126,6 +126,7 @@
         _addButton.layer.borderWidth = borderWidth;
         _addButton.layer.borderColor = [UIColor darkGrayColor].CGColor;
         _addButton.layer.cornerRadius = radius;
+        _addButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin |  UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
         _addButton.bounds = CGRectMake(0, 0, radius*2, radius*2);
         _addButton.layer.zPosition = 1.0;
         [_addButton setImage:addImage forState:UIControlStateNormal];
