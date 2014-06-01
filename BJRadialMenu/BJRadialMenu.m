@@ -77,13 +77,12 @@
 - (void)resetToDefaults
 {
     position = CGPointZero;
-    activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
     _menuState = kBJRadialMenuStateClosed;
     _numMenusOpened = 0;
     _numMenusOpening = 0;
     _radiusStep = 0.0;
-    _openDelayStep = 0.055;
-    _closeDelayStep = 0.045;
+    _openDelayStep = 0.045;
+    _closeDelayStep = 0.035;
     _selectedDelay = 1;
     _minAngle = 195;
     _maxAngle = 345;
@@ -132,8 +131,6 @@
     
     [self closing];
     
-    activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
-    
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger zeroIdx, BOOL *stop) {
         NSUInteger oneIdx = zeroIdx + 1;
         CGFloat delay = _closeDelayStep * oneIdx;
@@ -153,20 +150,6 @@
         _menuState != kBJRadialMenuStateUnhighlighted) {
         return;
     }
-    
-    /*
-    // Check if we moved off active sub menu
-    if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) {
-        BJRadialSubMenu *subMenu = [_subMenus objectAtIndex:activeSubMenuIndex];
-        
-        if (![subMenu isHighlightedAtPosition:aPosition]) {
-            [self unhiglightRadialSubMenu:subMenu];
-        }
-        return;
-    }
-     */
-    
-//    if (activeSubMenuIndex != kBJRadialMenuNoActiveSubMenu) return;
     
     // Otherwise figure out where we are
     [_subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
@@ -232,13 +215,11 @@
 
 - (void)higlightRadialSubMenu:(BJRadialSubMenu *)subMenu
 {
-    activeSubMenuIndex = [_subMenus indexOfObject:subMenu];
     [subMenu highlight];
 }
 
 - (void)unhiglightRadialSubMenu:(BJRadialSubMenu *)subMenu
 {
-    activeSubMenuIndex = kBJRadialMenuNoActiveSubMenu;
     [subMenu unhighlight];
 }
 

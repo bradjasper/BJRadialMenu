@@ -9,6 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <POP/POP.h>
 
+#pragma mark - Static definitions
+
+extern NSString * const kBJRadialSubMenuOpenMoveAnimation;
+extern NSString * const kBJRadialSubMenuCloseMoveAnimation;
+extern NSString * const kBJRadialSubMenuOpenAlphaAnimation;
+extern NSString * const kBJRadialSubMenuCloseAlphaAnimation;
+
 #pragma mark - Delegate
 
 @class BJRadialSubMenu;

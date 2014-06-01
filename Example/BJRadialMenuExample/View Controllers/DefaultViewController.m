@@ -15,6 +15,7 @@
 
 @interface DefaultViewController()
 
+@property (nonatomic) UILabel *infoLabel;
 @property (nonatomic) NSArray *menuItems;
 @property (nonatomic) UIButton *addButton;
 @property (nonatomic) BJRadialMenu *radialMenu;
@@ -30,6 +31,12 @@
 
 - (void)setup
 {
+    
+    self.infoLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 50, self.view.frame.size.width, 50)];
+    self.infoLabel.textAlignment = NSTextAlignmentCenter;
+    [self updateInfoLabel:@"Closed"];
+    [self.view addSubview:self.infoLabel];
+    
     // Setup the menu with numbers
     self.radialMenu = [[BJRadialMenu alloc] initWithText:self.menuItems];
     self.radialMenu.delegate = self;
@@ -37,8 +44,8 @@
     // All of these are configurable by shaking the device
     FBTweakBind(self.radialMenu, minAngle, @"defaultView", @"radialMenu", @"minAngle", 180);
     FBTweakBind(self.radialMenu, maxAngle, @"defaultView", @"radialMenu", @"maxAngle", 360);
-    FBTweakBind(self.radialMenu, openDelayStep, @"defaultView", @"radialMenu", @"openDelayStep", 0.055);
-    FBTweakBind(self.radialMenu, closeDelayStep, @"defaultView", @"radialMenu", @"closeDelayStep", 0.045);
+    FBTweakBind(self.radialMenu, openDelayStep, @"defaultView", @"radialMenu", @"openDelayStep", 0.045);
+    FBTweakBind(self.radialMenu, closeDelayStep, @"defaultView", @"radialMenu", @"closeDelayStep", 0.035);
     FBTweakBind(self.radialMenu, selectedDelay, @"defaultView", @"radialMenu", @"selectedDelay", 1.0);
     FBTweakBind(self.radialMenu, radius, @"defaultView", @"radialMenu", @"openRadius", 100);
     FBTweakBind(self.radialMenu, radiusStep, @"defaultView", @"radialMenu", @"radiusStep", 0.0);
@@ -118,19 +125,46 @@
     return _addButton;
 }
 
+- (void)updateInfoLabel:(NSString *)state
+{
+    self.infoLabel.text = [NSString stringWithFormat:@"state = %@", state];
+}
+
+- (void)radialMenuIsOpening
+{
+    [self updateInfoLabel:@"Opening"];
+}
+
+- (void)radialMenuIsClosing
+{
+    [self updateInfoLabel:@"Closing"];
+}
+
 - (void)radialMenuHasOpened
 {
-    NSLog(@"Radial menu open");
+    [self updateInfoLabel:@"Opened"];
 }
 
 - (void)radialMenuHasClosed
 {
-    NSLog(@"Radial menu closed");
+    [self updateInfoLabel:@"Closed"];
+}
+
+- (void)radialSubMenuHasHighlighted:(BJRadialSubMenu *)subMenu
+{
+    NSString *item = self.menuItems[subMenu.tag];
+    [self updateInfoLabel:[NSString stringWithFormat:@"Highlighted '%@'", item]];
+}
+
+- (void)radialSubMenuHasUnhighlighted:(BJRadialSubMenu *)subMenu
+{
+    [self updateInfoLabel:@"Opened"];
 }
 
 - (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu
 {
-    NSLog(@"Selected subMenu = %@", [self.menuItems objectAtIndex:subMenu.tag]);
+    NSString *item = self.menuItems[subMenu.tag];
+    [self updateInfoLabel:[NSString stringWithFormat:@"Selected '%@'", item]];
 }
 
 @end

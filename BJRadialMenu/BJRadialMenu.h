@@ -28,8 +28,6 @@
 
 #pragma mark - BJRadialMenu definition
 
-static NSUInteger kBJRadialMenuNoActiveSubMenu = -1;
-
 typedef NS_ENUM(NSUInteger, BJRadialMenuType) {
     kBJRadialMenuTypeFullCircle,
     kBJRadialMenuTypeSemiCircle
@@ -47,7 +45,6 @@ typedef NS_ENUM(NSUInteger, BJRadialMenuState) {
 
 @interface BJRadialMenu : UIView <BJRadialSubMenuDelegate> {
     CGPoint position;
-    NSUInteger activeSubMenuIndex;
 }
 
 @property (nonatomic, readonly) NSArray *subMenus;

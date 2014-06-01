@@ -8,6 +8,12 @@
 
 #import "BJRadialSubMenu.h"
 
+NSString * const kBJRadialSubMenuOpenMoveAnimation = @"kBJRadialSubMenuOpenMoveAnimation";
+NSString * const kBJRadialSubMenuCloseMoveAnimation = @"kBJRadialSubMenuCloseMoveAnimation";
+NSString * const kBJRadialSubMenuOpenAlphaAnimation = @"kBJRadialSubMenuOpenAlphaAnimation";
+NSString * const kBJRadialSubMenuCloseAlphaAnimation = @"kBJRadialSubMenuCloseAlphaAnimation";
+
+
 @interface BJRadialSubMenu () {
     CGPoint origPosition;
     CGRect  origBounds;
@@ -158,7 +164,7 @@
 - (void)pop_animationDidStart:(POPAnimation *)anim
 {
     // Start fade as soon as movement starts for close
-    if ([anim.name isEqualToString:@"close"]) {
+    if ([anim.name isEqualToString:kBJRadialSubMenuCloseMoveAnimation]) {
         [self fadeOutWithDelay:0.0];
     }
 }
@@ -169,13 +175,13 @@
         return;
     }
     
-    if ([anim.name isEqualToString:@"open"]) {
+    if ([anim.name isEqualToString:kBJRadialSubMenuOpenMoveAnimation]) {
         if (_menuState == kBJRadialSubMenuStateOpening) {
             [self opened];
         } else if (_menuState == kBJRadialSubMenuStateClosing) {
             [self closeAnimation];
         }
-    } else if ([anim.name isEqualToString:@"close"]) {
+    } else if ([anim.name isEqualToString:kBJRadialSubMenuCloseMoveAnimation]) {
         if (_menuState == kBJRadialSubMenuStateOpening) {
             [self openAnimation];
         } else if (_menuState == kBJRadialSubMenuStateClosing) {
@@ -193,20 +199,20 @@
     CGFloat openSpringBounciness = 8.0;
     CFTimeInterval absDelay = CACurrentMediaTime() + openDelay;
     
-    POPSpringAnimation *anim = [self pop_animationForKey:@"open"];
+    POPSpringAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuOpenMoveAnimation];
     
     
     if (anim == NULL)
     {
         anim = [POPSpringAnimation animationWithPropertyNamed:kPOPViewCenter];
-        anim.name = @"open";
+        anim.name = kBJRadialSubMenuOpenMoveAnimation;
         anim.beginTime = absDelay;
         anim.toValue = [NSValue valueWithCGPoint:currPosition];
         anim.springSpeed = openSpringSpeed;
         anim.springBounciness = openSpringBounciness;
         anim.delegate = self;
         
-        [self pop_addAnimation:anim forKey:@"open"];
+        [self pop_addAnimation:anim forKey:kBJRadialSubMenuOpenMoveAnimation];
     }
     
     return anim;
@@ -215,19 +221,20 @@
 
 - (POPAnimation *)closeAnimation
 {
-    POPBasicAnimation *anim = [self pop_animationForKey:@"close"];
+    POPBasicAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuCloseMoveAnimation];
+    
     CFTimeInterval absDelay = CACurrentMediaTime() + closeDelay;
     
     if (anim == NULL) {
         anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewCenter];
-        anim.name = @"close";
-        anim.beginTime = absDelay;
         anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim.name = kBJRadialSubMenuCloseMoveAnimation;
+        anim.beginTime = absDelay;
         anim.toValue = [NSValue valueWithCGPoint:origPosition];
         anim.duration = closeDuration;
         anim.delegate = self;
         
-        [self pop_addAnimation:anim forKey:@"close"];
+        [self pop_addAnimation:anim forKey:kBJRadialSubMenuCloseMoveAnimation];
     }
     
     return anim;
@@ -237,17 +244,18 @@
 {
     
     CFTimeInterval absDelay = CACurrentMediaTime() + delay;
-    POPBasicAnimation *anim = [self pop_animationForKey:@"closeAlpha"];
+    POPBasicAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuCloseAlphaAnimation];
     
     if (anim == NULL) {
         
         anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
+        anim.name = kBJRadialSubMenuCloseAlphaAnimation;
         anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
         anim.duration = closeDuration;
         anim.beginTime = absDelay;
         anim.toValue = @(0.0);
         
-        [self pop_addAnimation:anim forKey:@"closeAlpha"];
+        [self pop_addAnimation:anim forKey:kBJRadialSubMenuCloseAlphaAnimation];
     } else {
         anim.toValue = @(0.0);
     }
@@ -259,15 +267,16 @@
 {
     
     CFTimeInterval absDelay = CACurrentMediaTime() + delay;
-    POPBasicAnimation *anim = [self pop_animationForKey:@"openAlpha"];
+    POPBasicAnimation *anim = [self pop_animationForKey:kBJRadialSubMenuOpenAlphaAnimation];
     
     if (anim == NULL) {
         anim = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
         anim.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+        anim.name = kBJRadialSubMenuOpenAlphaAnimation;
         anim.toValue = @(1.0);
         anim.beginTime = absDelay;
         anim.duration = openDuration;
-        [self pop_addAnimation:anim forKey:@"openAlpha"];
+        [self pop_addAnimation:anim forKey:kBJRadialSubMenuOpenAlphaAnimation];
     } else {
         anim.toValue = @(1.0);
     }
@@ -279,16 +288,9 @@
 
 - (void)closed
 {
-    // The following race condition exists:
-    // 1. Open starts with big delay
-    // 2. Items are closed/cancelled
-    // 3. Open animation finally starts
-    // 4. broken state
-    
-    // So when we close, make sure to remove any open animations
-    
-    [self pop_removeAnimationForKey:@"open"];
-    [self pop_removeAnimationForKey:@"openAlpha"];
+    // When we close, make sure to remove open animations incase any haven't triggered yet
+    [self pop_removeAnimationForKey:kBJRadialSubMenuOpenMoveAnimation];
+    [self pop_removeAnimationForKey:kBJRadialSubMenuOpenAlphaAnimation];
     
     _menuState = kBJRadialSubMenuStateClosed;
     
