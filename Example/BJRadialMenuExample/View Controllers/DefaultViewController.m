@@ -35,16 +35,17 @@
     self.radialMenu.delegate = self;
     
     // All of these are configurable by shaking the device
-    FBTweakBind(self.radialMenu, minAngle, @"menu1", @"angle", @"min", 180);
-    FBTweakBind(self.radialMenu, maxAngle, @"menu1", @"angle", @"max", 360);
-    FBTweakBind(self.radialMenu, openDelayStep, @"menu1", @"open", @"delayStep", 0.055);
-    FBTweakBind(self.radialMenu, closeDelayStep, @"menu1", @"close", @"delayStep", 0.045);
-    FBTweakBind(self.radialMenu, selectedDelay, @"menu1", @"selected", @"delay", 1.0);
-    FBTweakBind(self.radialMenu, radius, @"menu1", @"submenu", @"radius", 100);
+    FBTweakBind(self.radialMenu, minAngle, @"defaultView", @"radialMenu", @"minAngle", 180);
+    FBTweakBind(self.radialMenu, maxAngle, @"defaultView", @"radialMenu", @"maxAngle", 360);
+    FBTweakBind(self.radialMenu, openDelayStep, @"defaultView", @"radialMenu", @"openDelayStep", 0.055);
+    FBTweakBind(self.radialMenu, closeDelayStep, @"defaultView", @"radialMenu", @"closeDelayStep", 0.045);
+    FBTweakBind(self.radialMenu, selectedDelay, @"defaultView", @"radialMenu", @"selectedDelay", 1.0);
+    FBTweakBind(self.radialMenu, radius, @"defaultView", @"radialMenu", @"openRadius", 100);
+    FBTweakBind(self.radialMenu, radiusStep, @"defaultView", @"radialMenu", @"radiusStep", 0.0);
     
     // Create long-press gesture and assign to button
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(pressedAddButton:)];
-    FBTweakBind(longPress, minimumPressDuration, @"view1", @"button", @"pressDuration", 0.4);
+    FBTweakBind(longPress, minimumPressDuration, @"defaultView", @"addButton", @"pressDuration", 0.4);
 
     [self.addButton addGestureRecognizer:longPress];
     self.addButton.center = self.view.center;
@@ -75,11 +76,10 @@
 {
     if (_menuItems == nil)
     {
-        NSUInteger numMenuItems = FBTweakValue(@"menu1", @"submenu", @"count", 4);
+        NSUInteger numMenuItems = FBTweakValue(@"defaultView", @"radialMenu", @"subMenuCount", 4);
         
-        NSMutableArray *items = [[NSMutableArray alloc] init];
-        for (int i = 1; i <= numMenuItems; i++)
-        {
+        NSMutableArray *items = [NSMutableArray array];
+        for (int i = 1; i <= numMenuItems; i++) {
             [items addObject:[NSString stringWithFormat:@"%@", @(i)]];
         }
         
@@ -92,12 +92,12 @@
 // Button to display menu
 - (UIButton *)addButton
 {
-    NSUInteger radius = FBTweakValue(@"view1", @"button", @"radius", 30);
-    NSUInteger borderWidth = FBTweakValue(@"view1", @"button", @"borderWidth", 2);
+    NSUInteger radius = FBTweakValue(@"defaultView", @"addButton", @"buttonRadius", 30);
+    NSUInteger borderWidth = FBTweakValue(@"defaultView", @"addButton", @"borderWidth", 2);
     
     if (!_addButton) {
         NSLog(@"creating add button");
-        float edgeMultiplier = FBTweakValue(@"view1", @"button", @"edgeMultiplier", 0.5);
+        float edgeMultiplier = FBTweakValue(@"defaultView", @"addButton", @"edgeMultiplier", 0.5);
         float edgeAmount = radius * edgeMultiplier;
         
         UIImage *addImage = [UIImage imageNamed:@"plus"];
@@ -131,12 +131,6 @@
 - (void)radialSubMenuHasSelected:(BJRadialSubMenu *)subMenu
 {
     NSLog(@"Selected subMenu = %@", [self.menuItems objectAtIndex:subMenu.tag]);
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 @end

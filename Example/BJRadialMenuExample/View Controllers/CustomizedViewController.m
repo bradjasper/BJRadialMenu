@@ -67,7 +67,7 @@
     if (_radialSubMenus == nil) {
         NSUInteger numMenuItems = FBTweakValue(@"menu2", @"submenu", @"count", 25);
         
-        NSMutableArray *items = [[NSMutableArray alloc] init];
+        NSMutableArray *items = [NSMutableArray array];
         for (int i = 1; i <= numMenuItems; i++) {
             [items addObject:[self createRadialSubMenu]];
         }

@@ -23,7 +23,7 @@
     self = [super init];
     if (self)
     {
-        NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
+        NSMutableArray *preparedSubMenus = [NSMutableArray array];
         [subMenus enumerateObjectsUsingBlock:^(BJRadialSubMenu *subMenu, NSUInteger idx, BOOL *stop) {
             subMenu.delegate = self;
             subMenu.tag = idx;
@@ -42,7 +42,7 @@
 
 - (id)initWithViews:(NSArray *)views
 {
-    NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
+    NSMutableArray *preparedSubMenus = [NSMutableArray array];
     for (UIView *view in views) {
         
         BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] initWithView:view];
@@ -54,7 +54,7 @@
 
 - (id)initWithText:(NSArray *)textItems
 {
-    NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
+    NSMutableArray *preparedSubMenus = [NSMutableArray array];
     for (NSString *text in textItems) {
         BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] initWithText:text];
         [preparedSubMenus addObject:subMenu];
@@ -65,7 +65,7 @@
 
 - (id)initWithLayers:(NSArray *)layers
 {
-    NSMutableArray *preparedSubMenus = [[NSMutableArray alloc] init];
+    NSMutableArray *preparedSubMenus = [NSMutableArray array];
     for (CALayer *layer in layers) {
         BJRadialSubMenu *subMenu = [[BJRadialSubMenu alloc] initWithLayer:layer];
         [preparedSubMenus addObject:subMenu];
